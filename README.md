@@ -4,6 +4,12 @@ Code service level repo for sharing common sources through several FF projects.
 
 ## Usage
 
+Create `.npmrc` file in project root with:
+
+```npm
+@flexifincz:registry=https://npm.pkg.github.com
+```
+
 Install package:
 
 <!-- automd:pm-install auto=false dev -->
@@ -20,6 +26,22 @@ pnpm install -D @flexifincz/eslint-config
 
 # bun
 bun install -D @flexifincz/eslint-config
+```
+
+Modify your project `.eslintrc.js` to extend Flexifin config:
+
+```js
+module.exports = {
+  "extends": "@flexifincz/eslint-config"
+}
+```
+
+And modify your project `.prettierrc.js` to extend Flexifin config:
+
+```js
+import config from "@flexifincz/eslint-config/prettier"
+
+export default config;
 ```
 
 <!-- /automd -->
