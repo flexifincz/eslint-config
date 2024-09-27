@@ -10,16 +10,16 @@ Install package:
 
 ```sh
 # npm
-npm install -D @flexifincz/eslint-config
+npm install -D @flexifin/eslint-config
 
 # yarn
-yarn add -D @flexifincz/eslint-config
+yarn add -D @flexifin/eslint-config
 
 # pnpm
-pnpm install -D @flexifincz/eslint-config
+pnpm install -D @flexifin/eslint-config
 
 # bun
-bun install -D @flexifincz/eslint-config
+bun install -D @flexifin/eslint-config
 ```
 
 <!-- /automd -->
