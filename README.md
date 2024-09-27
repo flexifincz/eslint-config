@@ -1,4 +1,4 @@
-# flexifincz/eslint-config
+# flexifin/eslint-config
 
 Code service level repo for sharing common sources through several FF projects.
 
@@ -24,20 +24,44 @@ bun install -D @flexifin/eslint-config
 
 <!-- /automd -->
 
-Modify your project `.eslintrc.js` to extend Flexifin config:
+## Migration to FlexiFin code standard
 
-```js
-module.exports = {
-  extends: '@flexifincz/eslint-config',
-};
+Remove these packages from your project:
+
+```bash
+npm remove eslint \
+  prettier \
+  @typescript-eslint/parser \
+  @typescript-eslint/parser \
+  @typescript-eslint/eslint-plugin \
+  eslint-plugin-prefer-arrow-functions \
+  eslint-plugin-unused-imports \
+  eslint-config-prettier \
+  eslint-plugin-prettier \
+  eslint-plugin-unicorn
 ```
 
-And modify your project `.prettierrc.js` to extend Flexifin config:
+Rename your project root ESLint config file to `eslint.config.mjs` and modify content to extend FlexiFin preset:
 
 ```js
-import config from '@flexifincz/eslint-config/prettier';
+import flexiFin from '@flexifin/eslint-config';
 
-export default config;
+export default flexiFin({
+  ignores: [
+    // ignore paths
+  ],
+  rules: {
+    // rule overrides
+  },
+});
+```
+
+Rename your project root Prettier config file to `prettier.config.mjs` and modify content to extend FlexiFin preset:
+
+```js
+import flexiFin from '@flexifin/eslint-config/prettier';
+
+export default flexiFin();
 ```
 
 ## Contributors
