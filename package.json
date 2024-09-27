@@ -32,12 +32,10 @@
   "scripts": {
     "build": "unbuild",
     "prepack": "pnpm build",
-    "lint:check": "eslint .",
-    "lint:fix": "automd && eslint . --fix",
-    "format:check": "prettier --check .",
-    "format:fix": "prettier --write .",
+    "lint:check": "eslint . && prettier --check .",
+    "lint:fix": "automd && eslint . --fix && prettier --write .",
     "types:check": "tsc --noEmit --skipLibCheck",
-    "test": "pnpm lint:check && pnpm format:check && pnpm types:check"
+    "test": "pnpm lint:check && pnpm types:check"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^8.2.0",

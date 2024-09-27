@@ -14,11 +14,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: corepack enable
-      - uses: actions/setup-node@v4
+
+      - name: 🐢 Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'pnpm'
-      - run: pnpm install
-      - run: pnpm lint
-      - run: pnpm test:types
-      - run: pnpm build
+
+      - name: 🔧 Install dependencies and build
+        run: |
+          pnpm install
+          pnpm build
+
+      - name: 🧪 Run tests
+        run: pnpm test
