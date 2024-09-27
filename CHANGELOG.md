@@ -1,3 +1,14 @@
+## v1.1.0
+
+
+### 🚀 Enhancements
+
+- Migrate to flat config ([7056970](https://github.com/flexifincz/eslint-config/commit/7056970))
+
+### ❤️ Contributors
+
+- Ondřej Misák ([@misaon](http://github.com/misaon))
+
 ## v1.0.10
 
 
