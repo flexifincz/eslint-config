@@ -32,14 +32,14 @@ Modify your project `.eslintrc.js` to extend Flexifin config:
 
 ```js
 module.exports = {
-  "extends": "@flexifincz/eslint-config"
-}
+  extends: '@flexifincz/eslint-config',
+};
 ```
 
 And modify your project `.prettierrc.js` to extend Flexifin config:
 
 ```js
-import config from "@flexifincz/eslint-config/prettier"
+import config from '@flexifincz/eslint-config/prettier';
 
 export default config;
 ```

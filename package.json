@@ -31,11 +31,19 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "lint": "eslint . && prettier -c .",
-    "lint:fix": "automd && eslint . --fix && prettier -w .",
     "prepack": "pnpm build",
-    "test": "pnpm lint && pnpm test:types",
-    "test:types": "tsc --noEmit --skipLibCheck"
+    "lint:check": "eslint .",
+    "lint:fix": "automd && eslint . --fix",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "types:check": "tsc --noEmit --skipLibCheck",
+    "test": "pnpm lint:check && pnpm format:check && pnpm types:check"
+  },
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.2.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-unicorn": "^55.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.1.0",
@@ -47,14 +55,5 @@
     "typescript": "^5.5.4",
     "unbuild": "^3.0.0-rc.7"
   },
-  "packageManager": "pnpm@9.7.0",
-  "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.2.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-unicorn": "^55.0.0"
-  },
-  "publishConfig": {
-    "@flexifincz:registry": "https://npm.pkg.github.com"
-  }
+  "packageManager": "pnpm@9.7.0"
 }
