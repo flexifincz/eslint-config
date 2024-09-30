@@ -4,12 +4,16 @@ Code service level repo for sharing common sources through several FF projects.
 
 ## Usage
 
+Update ESlint to version 9:
+
+```bash
+npm install eslint@^9
+```
+
 Remove these packages from your project:
 
 ```bash
-npm remove eslint \
-  prettier \
-  @typescript-eslint/parser \
+npm remove prettier \
   @typescript-eslint/parser \
   @typescript-eslint/eslint-plugin \
   eslint-plugin-prefer-arrow-functions \
