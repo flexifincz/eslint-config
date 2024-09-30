@@ -1,3 +1,14 @@
+## v1.2.0
+
+
+### 🚀 Enhancements
+
+- Add sort rules ([e43bed7](https://github.com/flexifincz/eslint-config/commit/e43bed7))
+
+### ❤️ Contributors
+
+- Ondřej Misák ([@misaon](http://github.com/misaon))
+
 ## v1.1.0
 
 
