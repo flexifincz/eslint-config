@@ -1,3 +1,14 @@
+## v1.2.1
+
+
+### 🏡 Chore
+
+- Fix cs ([a9539d3](https://github.com/flexifincz/eslint-config/commit/a9539d3))
+
+### ❤️ Contributors
+
+- Ondřej Misák ([@misaon](http://github.com/misaon))
+
 ## v1.2.0
 
 
