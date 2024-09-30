@@ -1,3 +1,14 @@
+## v1.2.2
+
+
+### 🏡 Chore
+
+- Change license to MIT ([d17a91b](https://github.com/flexifincz/eslint-config/commit/d17a91b))
+
+### ❤️ Contributors
+
+- Ondřej Misák ([@misaon](http://github.com/misaon))
+
 ## v1.2.1
 
 
