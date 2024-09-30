@@ -1,9 +1,11 @@
 import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import eslintPluginUnicorn from 'eslint-plugin-unicorn';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import globals from 'globals';
 import type { Linter } from 'eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
 import type { RuleOptions } from './eslint.gen';
 
 export type MainConfig = {
@@ -58,6 +60,10 @@ export default function flexiFinPreset(
       },
     ],
 
+    // ### SIMPLE IMPORT SORT RULES
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+
     // ### USER RULES
     ...config.rules,
   };
@@ -70,7 +76,13 @@ export default function flexiFinPreset(
     ...(tseslint.configs.recommended as Linter.FlatConfig[]),
     // https://github.com/sindresorhus/eslint-plugin-unicorn
     eslintPluginUnicorn.configs['flat/all'] as Linter.FlatConfig,
-    // https://github.com/sindresorhus/eslint-plugin-unicorn
+    // https://github.com/lydell/eslint-plugin-simple-import-sort
+    {
+      plugins: {
+        'simple-import-sort': eslintPluginSimpleImportSort,
+      },
+    },
+    // https://github.com/prettier/eslint-plugin-prettier
     eslintPluginPrettierRecommended as Linter.FlatConfig,
 
     // Preset overrides
@@ -84,7 +96,7 @@ export default function flexiFinPreset(
         ),
       },
     },
-    { ignores: ['dist', 'coverage', '.nyc_output', ...(config.ignores || [])] },
+    { ignores: ['dist', 'coverage', '.nyc_output', '.idea', '.next', ...(config.ignores || [])] },
 
     // User overrides
     ...(userConfigs as Linter.FlatConfig[]),

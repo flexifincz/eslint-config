@@ -1,5 +1,6 @@
-import { defineBuildConfig } from 'unbuild';
 import fs from 'node:fs/promises';
+
+import { defineBuildConfig } from 'unbuild';
 
 export default defineBuildConfig({
   hooks: {

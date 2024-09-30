@@ -19,6 +19,9 @@ importers:
       eslint-plugin-prettier:
         specifier: ^5.2.1
         version: 5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@9.11.1(jiti@2.0.0)))(eslint@9.11.1(jiti@2.0.0))(prettier@3.3.3)
+      eslint-plugin-simple-import-sort:
+        specifier: ^12.1.1
+        version: 12.1.1(eslint@9.11.1(jiti@2.0.0))
       eslint-plugin-unicorn:
         specifier: ^55.0.0
         version: 55.0.0(eslint@9.11.1(jiti@2.0.0))
@@ -1995,6 +1998,14 @@ packages:
         optional: true
       eslint-config-prettier:
         optional: true
+
+  eslint-plugin-simple-import-sort@12.1.1:
+    resolution:
+      {
+        integrity: sha512-6nuzu4xwQtE3332Uz0to+TxDQYRLTKRESSc2hefVT48Zc8JthmN23Gx9lnYhu0FtkRSL1oxny3kJ2aveVhmOVA==,
+      }
+    peerDependencies:
+      eslint: '>=5.0.0'
 
   eslint-plugin-unicorn@55.0.0:
     resolution:
@@ -5076,6 +5087,10 @@ snapshots:
     optionalDependencies:
       '@types/eslint': 9.6.1
       eslint-config-prettier: 9.1.0(eslint@9.11.1(jiti@2.0.0))
+
+  eslint-plugin-simple-import-sort@12.1.1(eslint@9.11.1(jiti@2.0.0)):
+    dependencies:
+      eslint: 9.11.1(jiti@2.0.0)
 
   eslint-plugin-unicorn@55.0.0(eslint@9.11.1(jiti@2.0.0)):
     dependencies:

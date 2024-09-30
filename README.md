@@ -4,6 +4,21 @@ Code service level repo for sharing common sources through several FF projects.
 
 ## Usage
 
+Remove these packages from your project:
+
+```bash
+npm remove eslint \
+  prettier \
+  @typescript-eslint/parser \
+  @typescript-eslint/parser \
+  @typescript-eslint/eslint-plugin \
+  eslint-plugin-prefer-arrow-functions \
+  eslint-plugin-unused-imports \
+  eslint-config-prettier \
+  eslint-plugin-prettier \
+  eslint-plugin-unicorn
+```
+
 Install package:
 
 <!-- automd:pm-install auto=false dev -->
@@ -25,21 +40,6 @@ bun install -D @flexifin/eslint-config
 <!-- /automd -->
 
 ## Migration to FlexiFin code standard
-
-Remove these packages from your project:
-
-```bash
-npm remove eslint \
-  prettier \
-  @typescript-eslint/parser \
-  @typescript-eslint/parser \
-  @typescript-eslint/eslint-plugin \
-  eslint-plugin-prefer-arrow-functions \
-  eslint-plugin-unused-imports \
-  eslint-config-prettier \
-  eslint-plugin-prettier \
-  eslint-plugin-unicorn
-```
 
 Rename your project root ESLint config file to `eslint.config.mjs` and modify content to extend FlexiFin preset:
 
