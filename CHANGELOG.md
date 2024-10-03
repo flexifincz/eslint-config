@@ -1,3 +1,14 @@
+## v1.3.0
+
+
+### 🚀 Enhancements
+
+- Switch unicorn ruleset to recommended ([506cb77](https://github.com/flexifincz/eslint-config/commit/506cb77))
+
+### ❤️ Contributors
+
+- Ondřej Misák ([@misaon](http://github.com/misaon))
+
 ## v1.2.2
 
 
