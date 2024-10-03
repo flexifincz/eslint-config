@@ -75,7 +75,7 @@ export default function flexiFinPreset(
     // https://typescript-eslint.io/
     ...(tseslint.configs.recommended as Linter.FlatConfig[]),
     // https://github.com/sindresorhus/eslint-plugin-unicorn
-    eslintPluginUnicorn.configs['flat/all'] as Linter.FlatConfig,
+    eslintPluginUnicorn.configs['flat/recommended'] as Linter.FlatConfig,
     // https://github.com/lydell/eslint-plugin-simple-import-sort
     {
       plugins: {
