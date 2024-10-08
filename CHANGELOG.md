@@ -1,3 +1,10 @@
+## v1.3.1
+
+
+### 🏡 Chore
+
+- **release:** V1.3.0 ([ff4c21b](https://github.com/flexifincz/eslint-config/commit/ff4c21b))
+
 ## v1.3.0
 
 
