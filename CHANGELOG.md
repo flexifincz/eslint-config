@@ -1,3 +1,14 @@
+## v1.4.0
+
+
+### 🚀 Enhancements
+
+- Hide TS version warning ([eea90b1](https://github.com/flexifincz/eslint-config/commit/eea90b1))
+
+### ❤️ Contributors
+
+- Ondřej Misák ([@misaon](http://github.com/misaon))
+
 ## v1.3.1
 
 
