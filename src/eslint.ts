@@ -89,6 +89,9 @@ export default function flexiFinPreset(
     { rules: rules as Linter.RulesRecord },
     {
       languageOptions: {
+        parserOptions: {
+          warnOnUnsupportedTypeScriptVersion: false,
+        },
         globals: Object.fromEntries(
           Object.keys(globals).flatMap((group) =>
             Object.keys(globals[group as keyof typeof globals]).map((k) => [k, true])
