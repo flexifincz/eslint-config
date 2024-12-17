@@ -39,6 +39,9 @@ pnpm install -D @flexifin/eslint-config
 
 # bun
 bun install -D @flexifin/eslint-config
+
+# deno
+deno install --dev @flexifin/eslint-config
 ```
 
 <!-- /automd -->
