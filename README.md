@@ -55,6 +55,7 @@ Rename your project root ESLint config file to `eslint.config.mjs` and modify co
 import flexiFin from '@flexifin/eslint-config';
 
 export default flexiFin({
+  reactSupport: true, // optional
   ignores: [
     // ignore paths
   ],
@@ -62,6 +63,28 @@ export default flexiFin({
     // rule overrides
   },
 });
+```
+
+Real world example:
+
+```js
+import flexiFin from '@flexifin/eslint-config';
+
+export default flexiFin(
+  {
+    reactSupport: true,
+    ignores: ['src/_api'],
+    rules: {
+      'unicorn/no-array-reduce': 'off',
+    },
+  },
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  }
+);
 ```
 
 Rename your project root Prettier config file to `prettier.config.mjs` and modify content to extend FlexiFin preset:

@@ -111,13 +111,14 @@ export default function flexifinPreset(
         },
         globals: Object.fromEntries(
           Object.keys(globals).flatMap((group) =>
-            Object.keys(globals[group as keyof typeof globals]).map((k) => [k, true])
+            Object.keys(globals[group as keyof typeof globals]).map((key) => [key, true])
           )
         ),
       },
     },
     {
       ignores: [
+        '.features-gen',
         '.idea',
         '.next',
         '.nyc_output',
@@ -126,6 +127,7 @@ export default function flexifinPreset(
         'coverage',
         'monocart-report',
         'playwright-report',
+        'test-results',
         ...(config.ignores || []),
       ],
     },
