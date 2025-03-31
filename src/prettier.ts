@@ -1,4 +1,4 @@
-export default function flexiFinPreset() {
+export default function flexifinPreset() {
   return {
     printWidth: 100,
     singleQuote: true,
