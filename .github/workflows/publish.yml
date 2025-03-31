@@ -1,38 +1,50 @@
-name: publish.ci
+name: 📜 Release + generate changelog
 
 on: workflow_dispatch
 
 permissions:
+  id-token: write
   contents: write
-  packages: write
+  attestations: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: corepack enable
+      - name: 🔀 Checkout repository branch
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: 🤖 Setup release bot
-        uses: fregante/setup-git-user@v2
+      - name: 📥 Install pnpm
+        uses: pnpm/action-setup@v4
 
-      - name: 🐢 Setup Node
+      - name: 🟢 Use Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org/'
 
-      - name: 🔧 Install dependencies and build
+      - name: ⬇️ Install dependencies and build
         run: |
-          pnpm install
+          pnpm install --frozen-lockfile
           pnpm build
 
       - name: 🧪 Run tests
         run: pnpm test
 
-      - name: 📜 Generate changelog & Github Release
+      - name: 📜 Generate, Commit, Push Changelog & Github release
+        continue-on-error: true
+        env:
+          # Don't run husky on `git commit`
+          HUSKY: 0
         run: |
+          git config --global user.name "FlexiFin Bot"
+          git config --global user.email "bot@flexifin.cz"
+          git config --global push.followTags true
+
           pnpm changelogen --release --push
           pnpm changelogen gh release --token ${{ secrets.GITHUB_TOKEN }}
 

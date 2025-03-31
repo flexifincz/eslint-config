@@ -20,6 +20,7 @@ npm remove prettier \
   eslint-plugin-unused-imports \
   eslint-config-prettier \
   eslint-plugin-prettier \
+  eslint-plugin-react \
   eslint-plugin-unicorn
 ```
 

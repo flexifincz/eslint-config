@@ -1,4 +1,4 @@
-name: ci
+name: ⚙️ Continuous Integration (CI)
 
 on:
   push:
@@ -12,18 +12,21 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: corepack enable
+      - name: 🔀 Checkout repository branch
+        uses: actions/checkout@v4
 
-      - name: 🐢 Setup Node
+      - name: 📥 Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 🟢 Use Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
 
-      - name: 🔧 Install dependencies and build
+      - name: ⬇️ Install dependencies and build
         run: |
-          pnpm install
+          pnpm install --frozen-lockfile
           pnpm build
 
       - name: 🧪 Run tests

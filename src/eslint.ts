@@ -39,6 +39,8 @@ export default function flexifinPreset(
           pascalCase: true,
           kebabCase: true,
         },
+        // Flexifin specific shortcuts
+        ignore: ['MTP', 'IL', 'SME', 'GTM', 'SMS'],
       },
     ],
     'unicorn/no-keyword-prefix': 'off',
@@ -48,7 +50,18 @@ export default function flexifinPreset(
     'unicorn/prevent-abbreviations': [
       'error',
       {
-        ignore: ['app', 'env', 'params', 'props', 'ref'],
+        replacements: {
+          app: false,
+          dev: false,
+          env: false,
+          fn: false,
+          params: false,
+          prod: false,
+          props: false,
+          ref: false,
+          refNo: false,
+        },
+        ignore: ['iSpis'],
       },
     ],
 
