@@ -1,3 +1,15 @@
+## v1.5.0
+
+[compare changes](https://github.com/flexifincz/eslint-config/compare/v1.4.2...v1.5.0)
+
+### 🚀 Enhancements
+
+- Improve CI and some eslint rules ([78bb14c](https://github.com/flexifincz/eslint-config/commit/78bb14c))
+
+### ❤️ Contributors
+
+- Ondřej Misák ([@misaon](https://github.com/misaon))
+
 ## v1.4.2
 
 ## v1.4.1
