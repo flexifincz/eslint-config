@@ -61,7 +61,7 @@ export default function flexifinPreset(
           ref: false,
           refNo: false,
         },
-        ignore: ['iSpis'],
+        ignore: ['iSpis', 'utils'],
       },
     ],
 
