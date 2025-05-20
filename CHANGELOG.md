@@ -1,3 +1,15 @@
+## v1.7.0
+
+[compare changes](https://github.com/flexifincz/eslint-config/compare/v1.6.0...v1.7.0)
+
+### 🚀 Enhancements
+
+- Ignore "utils" abbreviations ([a57f527](https://github.com/flexifincz/eslint-config/commit/a57f527))
+
+### ❤️ Contributors
+
+- Ondřej Misák ([@misaon](https://github.com/misaon))
+
 ## v1.6.0
 
 [compare changes](https://github.com/flexifincz/eslint-config/compare/v1.5.1...v1.6.0)
