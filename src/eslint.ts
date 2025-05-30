@@ -12,6 +12,7 @@ import type { RuleOptions } from './eslint.gen';
 export type MainConfig = {
   ignores?: string[];
   reactSupport?: boolean;
+  nestSupport?: boolean;
   rules?: RuleOptions;
 };
 
@@ -108,6 +109,10 @@ export default function flexifinPreset(
       languageOptions: {
         parserOptions: {
           warnOnUnsupportedTypeScriptVersion: false,
+          ...(config.nestSupport && {
+            experimentalDecorators: true,
+            emitDecoratorMetadata: true,
+          }),
         },
         globals: Object.fromEntries(
           Object.keys(globals).flatMap((group) =>
