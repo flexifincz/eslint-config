@@ -1,3 +1,15 @@
+## v1.8.0
+
+[compare changes](https://github.com/flexifincz/eslint-config/compare/v1.7.0...v1.8.0)
+
+### 🚀 Enhancements
+
+- Add NestJs support for consistent-type-imports ([#7](https://github.com/flexifincz/eslint-config/pull/7))
+
+### ❤️ Contributors
+
+- Petr Kašpar ([@petr-kaspar-tf](https://github.com/petr-kaspar-tf))
+
 ## v1.7.0
 
 [compare changes](https://github.com/flexifincz/eslint-config/compare/v1.6.0...v1.7.0)
