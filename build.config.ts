@@ -10,8 +10,11 @@ export default defineBuildConfig({
       const dts = await flatConfigsToRulesDTS(flexiFinPreset(), {
         includeAugmentation: false,
       });
-
-      await fs.writeFile('src/eslint.gen.d.ts', dts);
+      await fs.writeFile('src/types.gen.d.ts', dts);
+    },
+    async 'build:done'() {
+      await fs.rm('dist/eslint.d.ts');
+      await fs.rm('dist/prettier.d.ts');
     },
   },
 });

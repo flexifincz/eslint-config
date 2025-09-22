@@ -1,5 +1,7 @@
+/* eslint-disable unicorn/prefer-string-raw */
+
 import eslint from '@eslint/js';
-import type { Linter } from 'eslint';
+import stylistic from '@stylistic/eslint-plugin';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginReact from 'eslint-plugin-react';
 import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
@@ -7,7 +9,8 @@ import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import globals from 'globals';
 import tsEslint from 'typescript-eslint';
 
-import type { RuleOptions } from './eslint.gen';
+import type { RuleOptions } from './types.gen';
+import type { Linter } from 'eslint';
 
 export type MainConfig = {
   ignores?: string[];
@@ -18,7 +21,34 @@ export type MainConfig = {
 
 export type TypedFlatConfig = {
   rules?: RuleOptions;
-} & Omit<Linter.Config, 'rules'>;
+} & Omit<Linter.FlatConfig, 'rules'>;
+
+const IGNORED_DIRECTORIES = [
+  '.features-gen',
+  '.idea',
+  '.next',
+  '.nyc_output',
+  '.v8-coverage',
+  'coverage',
+  'coverage-reports',
+  'dist',
+  'monocart-report',
+  'playwright-report',
+  'test-results',
+];
+
+const ALLOWED_ABBREVIATIONS = [
+  'app',
+  'dev',
+  'env',
+  'fn',
+  'params',
+  'prod',
+  'props',
+  'ref',
+  'refNo',
+  'e2e',
+] as const;
 
 export default function flexifinPreset(
   config: MainConfig = {},
@@ -28,8 +58,15 @@ export default function flexifinPreset(
     // ### NATIVE RULES
     // @ts-expect-error This is OK
     curly: ['error', 'all'],
-    'newline-before-return': 'error',
     'no-unused-vars': 'off', // more info https://typescript-eslint.io/rules/no-unused-vars/#how-to-use
+    'no-nested-ternary': 'error',
+    'no-duplicate-imports': [
+      'error',
+      {
+        includeExports: true,
+        allowSeparateTypeImports: true,
+      },
+    ],
 
     // ### UNICORN RULES
     'unicorn/filename-case': [
@@ -51,24 +88,22 @@ export default function flexifinPreset(
     'unicorn/prevent-abbreviations': [
       'error',
       {
-        replacements: {
-          app: false,
-          dev: false,
-          env: false,
-          fn: false,
-          params: false,
-          prod: false,
-          props: false,
-          ref: false,
-          refNo: false,
-        },
+        allowList: Object.fromEntries(ALLOWED_ABBREVIATIONS.map((abbr) => [abbr, true])),
+        replacements: {},
         ignore: ['iSpis', 'utils'],
       },
     ],
 
     // ### TYPESCRIPT RULES
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
-    '@typescript-eslint/consistent-type-imports': 'error',
+    '@typescript-eslint/consistent-type-imports': [
+      'error',
+      {
+        prefer: 'type-imports',
+        fixStyle: 'separate-type-imports',
+        disallowTypeAnnotations: true,
+      },
+    ],
     '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',
@@ -79,15 +114,33 @@ export default function flexifinPreset(
     ],
 
     // ### SIMPLE IMPORT SORT RULES
-    'simple-import-sort/imports': 'error',
+    'simple-import-sort/imports': [
+      'error',
+      {
+        groups: [
+          ['^\\u0000'],
+          ['^node:(?!.*\\u0000$)'],
+          ['^@?\\w(?!.*\\u0000$)'],
+          ['^(?!.*\\u0000$)'],
+          ['^\\.(?!.*\\u0000$)'],
+          ['\\u0000$'],
+        ],
+      },
+    ],
     'simple-import-sort/exports': 'error',
+
+    // ### STYLISTIC RULES
+    '@stylistic/padding-line-between-statements': [
+      'error',
+      { blankLine: 'always', prev: '*', next: 'return' },
+    ],
 
     // ### USER RULES
     ...config.rules,
   };
 
   // noinspection UnnecessaryLocalVariableJS
-  const resultConfig = [
+  const resultConfig: Linter.FlatConfig[] = [
     // https://eslint.org/docs/latest/rules/
     eslint.configs.recommended,
     // https://typescript-eslint.io/
@@ -98,6 +151,12 @@ export default function flexifinPreset(
     {
       plugins: {
         'simple-import-sort': eslintPluginSimpleImportSort,
+      },
+    },
+    // https://eslint.style
+    {
+      plugins: {
+        '@stylistic': stylistic,
       },
     },
     // https://github.com/prettier/eslint-plugin-prettier
@@ -122,20 +181,7 @@ export default function flexifinPreset(
       },
     },
     {
-      ignores: [
-        '.features-gen',
-        '.idea',
-        '.next',
-        '.nyc_output',
-        '.v8-coverage',
-        'coverage',
-        'coverage-reports',
-        'dist',
-        'monocart-report',
-        'playwright-report',
-        'test-results',
-        ...(config.ignores || []),
-      ],
+      ignores: [...IGNORED_DIRECTORIES, ...(config.ignores || [])],
     },
 
     // File specific rules
@@ -144,6 +190,7 @@ export default function flexifinPreset(
       rules: {
         '@typescript-eslint/consistent-type-definitions': 'off',
         '@typescript-eslint/no-empty-object-type': 'off',
+        '@typescript-eslint/triple-slash-reference': 'off',
       } as RuleOptions,
     },
 
