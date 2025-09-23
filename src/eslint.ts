@@ -93,8 +93,7 @@ export default function flexifinPreset(
         ignore: ['iSpis', 'utils', 'e2e'],
       },
     ],
-    'unicorn/better-regex': 'error',
-    'unicorn/consistent-destructuring': 'error',
+    'unicorn/better-regex': 'warn',
 
     // ### TYPESCRIPT RULES
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
@@ -195,6 +194,7 @@ export default function flexifinPreset(
         '@typescript-eslint/consistent-type-definitions': 'off',
         '@typescript-eslint/no-empty-object-type': 'off',
         '@typescript-eslint/triple-slash-reference': 'off',
+        'unicorn/require-module-specifiers': 'off',
       } as RuleOptions,
     },
 
