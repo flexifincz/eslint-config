@@ -36,13 +36,13 @@ npm install -D @flexifin/eslint-config
 yarn add -D @flexifin/eslint-config
 
 # pnpm
-pnpm install -D @flexifin/eslint-config
+pnpm add -D @flexifin/eslint-config
 
 # bun
 bun install -D @flexifin/eslint-config
 
 # deno
-deno install --dev @flexifin/eslint-config
+deno install --dev npm:@flexifin/eslint-config
 ```
 
 <!-- /automd -->

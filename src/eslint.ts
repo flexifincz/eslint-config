@@ -2,6 +2,7 @@
 
 import eslint from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
+import eslintPluginCasePolice from 'eslint-plugin-case-police';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginReact from 'eslint-plugin-react';
 import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
@@ -88,11 +89,12 @@ export default function flexifinPreset(
     'unicorn/prevent-abbreviations': [
       'error',
       {
-        allowList: Object.fromEntries(ALLOWED_ABBREVIATIONS.map((abbr) => [abbr, true])),
-        replacements: {},
-        ignore: ['iSpis', 'utils'],
+        replacements: Object.fromEntries(ALLOWED_ABBREVIATIONS.map((abbr) => [abbr, false])),
+        ignore: ['iSpis', 'utils', 'e2e'],
       },
     ],
+    'unicorn/better-regex': 'error',
+    'unicorn/consistent-destructuring': 'error',
 
     // ### TYPESCRIPT RULES
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
@@ -160,7 +162,9 @@ export default function flexifinPreset(
       },
     },
     // https://github.com/prettier/eslint-plugin-prettier
-    eslintPluginPrettierRecommended as Linter.Config,
+    eslintPluginPrettierRecommended,
+    // https://github.com/antfu/case-police
+    ...eslintPluginCasePolice.configs.recommended,
 
     // Preset overrides
     { rules: rules as Linter.RulesRecord },

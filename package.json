@@ -31,19 +31,20 @@
     "@eslint/js": "^9.32.0",
     "@stylistic/eslint-plugin": "^5.4.0",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-case-police": "^2.0.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unicorn": "^61.0.2",
     "globals": "^16.3.0",
     "prettier": "^3.6.2",
-    "typescript-eslint": "^8.39.0"
+    "typescript-eslint": "^8.44.1"
   },
   "devDependencies": {
     "@eslint/config-inspector": "^1.1.0",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.13.13",
-    "automd": "^0.4.0",
+    "automd": "^0.4.2",
     "changelogen": "^0.6.2",
     "eslint": "^9.32.0",
     "eslint-typegen": "^2.3.0",
