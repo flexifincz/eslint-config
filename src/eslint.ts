@@ -111,6 +111,7 @@ export default function flexifinPreset(
       {
         argsIgnorePattern: '^_',
         destructuredArrayIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
       },
     ],
 
