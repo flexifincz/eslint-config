@@ -56,7 +56,7 @@
     "eslint": "*",
     "typescript": "*"
   },
-  "packageManager": "pnpm@10.6.5",
+  "packageManager": "pnpm@10.25.0",
   "pnpm": {
     "neverBuiltDependencies": []
   }
