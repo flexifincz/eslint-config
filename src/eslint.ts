@@ -206,6 +206,11 @@ export default function flexifinPreset(
     ...((config.reactSupport
       ? [
           {
+            settings: {
+              react: { version: 'detect' },
+            },
+          },
+          {
             files: ['**/*.tsx'],
             ...eslintPluginReact.configs.flat.recommended,
           },
@@ -216,6 +221,8 @@ export default function flexifinPreset(
           {
             files: ['**/*.tsx'],
             rules: {
+              'react/react-in-jsx-scope': 'off',
+              'react/prop-types': 'off',
               'react/boolean-prop-naming': 2,
               'react/jsx-sort-props': 2,
               'react/jsx-max-depth': [2, { max: 10 }],
@@ -231,6 +238,12 @@ export default function flexifinPreset(
                   namedComponents: ['arrow-function', 'function-declaration'],
                 },
               ],
+            },
+          },
+          {
+            files: ['**/*.stories.tsx', '**/*.stories.ts'],
+            rules: {
+              'react-hooks/rules-of-hooks': 'off',
             },
           },
         ]
