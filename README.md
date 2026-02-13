@@ -58,6 +58,9 @@ export default flexiFin({
   tsconfigRootDir: import.meta.dirname,
   reactSupport: true, // optional (React projects)
   nestSupport: true, // optional (NestJS projects)
+  experimental: {
+    enablePerfectionistPlugin: true, // false by default
+  },
   ignores: [
     // ignore paths
   ],

@@ -14,6 +14,9 @@ import tsEslint from 'typescript-eslint';
 import type { RuleOptions } from './types.gen';
 
 export type MainConfig = {
+  experimental?: {
+    enablePerfectionistPlugin?: boolean;
+  };
   ignores?: string[];
   nestSupport?: boolean;
   reactSupport?: boolean;
@@ -56,12 +59,15 @@ export default function flexifinPreset(
   config: MainConfig = {},
   ...userConfigs: TypedFlatConfig[]
 ): Linter.Config[] {
+  const enablePerfectionist = config.experimental?.enablePerfectionistPlugin ?? false;
+
   const rules: RuleOptions = {
     // ### STYLISTIC RULES
     '@stylistic/padding-line-between-statements': [
       'error',
       { blankLine: 'always', next: 'return', prev: '*' },
     ],
+
     // ### TYPESCRIPT RULES
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     '@typescript-eslint/consistent-type-imports': [
@@ -73,7 +79,6 @@ export default function flexifinPreset(
       },
     ],
     '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
-
     '@typescript-eslint/no-unused-vars': [
       'error',
       {
@@ -82,6 +87,7 @@ export default function flexifinPreset(
         varsIgnorePattern: '^_',
       },
     ],
+
     // ### NATIVE RULES
     // @ts-expect-error This is OK
     curly: ['error', 'all'],
@@ -94,10 +100,9 @@ export default function flexifinPreset(
     ],
     'no-nested-ternary': 'error',
     'no-unused-vars': 'off', // more info https://typescript-eslint.io/rules/no-unused-vars/#how-to-use
-    'perfectionist/sort-arrays': 'off',
-    'unicorn/better-regex': 'warn',
 
     // ### UNICORN RULES
+    'unicorn/better-regex': 'warn',
     'unicorn/filename-case': [
       'error',
       {
@@ -113,9 +118,7 @@ export default function flexifinPreset(
     'unicorn/no-keyword-prefix': 'off',
     'unicorn/no-null': 'off',
     'unicorn/prefer-ternary': ['error', 'only-single-line'],
-
     'unicorn/prefer-type-error': 'off',
-
     'unicorn/prevent-abbreviations': [
       'error',
       {
@@ -135,8 +138,18 @@ export default function flexifinPreset(
     ...tsEslint.configs.recommended,
     // https://github.com/sindresorhus/eslint-plugin-unicorn
     eslintPluginUnicorn.configs.recommended,
+
     // https://perfectionist.dev/
-    eslintPluginPerfectionist.configs['recommended-natural'],
+    ...(enablePerfectionist
+      ? [
+          eslintPluginPerfectionist.configs['recommended-natural'],
+          {
+            rules: {
+              'perfectionist/sort-arrays': 'off',
+            },
+          },
+        ]
+      : []),
 
     {
       plugins: {
