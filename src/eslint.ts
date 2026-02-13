@@ -169,7 +169,10 @@ export default function flexifinPreset(
       languageOptions: {
         parserOptions: {
           warnOnUnsupportedTypeScriptVersion: false,
-          projectService: true,
+          projectService: {
+            allowDefaultProject: ['*.js', '*.mjs', '*.cjs', '*.config.js', '*.config.mjs'],
+            defaultProject: 'tsconfig.json',
+          },
           tsconfigRootDir: config.tsconfigRootDir,
           ...(config.nestSupport && {
             experimentalDecorators: true,

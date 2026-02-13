@@ -55,7 +55,8 @@ Rename your project root ESLint config file to `eslint.config.mjs` and modify co
 import flexiFin from '@flexifin/eslint-config';
 
 export default flexiFin({
-  reactSupport: true, // optional
+  reactSupport: true, // optional (React projects)
+  nestSupport: true, // optional (NestJS projects)
   ignores: [
     // ignore paths
   ],

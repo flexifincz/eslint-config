@@ -21,8 +21,8 @@
   "scripts": {
     "build": "unbuild",
     "dev": "eslint-config-inspector",
-    "lint:check": "eslint --flag unstable_ts_config . && prettier --check .",
-    "lint:fix": "automd && eslint --flag unstable_ts_config . --fix && prettier --write .",
+    "lint:check": "eslint . && prettier --check .",
+    "lint:fix": "automd && eslint . --fix && prettier --write .",
     "prepack": "pnpm build",
     "types:check": "tsc --noEmit --skipLibCheck",
     "test": "pnpm lint:check && pnpm types:check"
