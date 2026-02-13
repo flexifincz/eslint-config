@@ -1,6 +1,6 @@
 {
   "name": "@flexifin/eslint-config",
-  "version": "1.8.9",
+  "version": "2.0.0",
   "description": "Code service level repo for sharing common sources through several FF projects.",
   "repository": "flexifincz/eslint-config",
   "license": "UNLICENSED",
@@ -32,10 +32,10 @@
     "@stylistic/eslint-plugin": "^5.8.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-case-police": "^2.1.1",
+    "eslint-plugin-perfectionist": "^5.5.0",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unicorn": "^63.0.0",
     "globals": "^17.3.0",
     "typescript-eslint": "^8.55.0"

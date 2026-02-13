@@ -1,30 +1,29 @@
-/* eslint-disable unicorn/prefer-string-raw */
+import type { Linter } from 'eslint';
 
 import eslint from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import eslintPluginCasePolice from 'eslint-plugin-case-police';
+import eslintPluginPerfectionist from 'eslint-plugin-perfectionist';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginReact from 'eslint-plugin-react';
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
-import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import globals from 'globals';
 import tsEslint from 'typescript-eslint';
 
 import type { RuleOptions } from './types.gen';
-import type { Linter } from 'eslint';
 
 export type MainConfig = {
   ignores?: string[];
-  reactSupport?: boolean;
   nestSupport?: boolean;
+  reactSupport?: boolean;
   rules?: RuleOptions;
   tsconfigRootDir?: string;
 };
 
-export type TypedFlatConfig = {
+export type TypedFlatConfig = Omit<Linter.Config, 'rules'> & {
   rules?: RuleOptions;
-} & Omit<Linter.Config, 'rules'>;
+};
 
 const IGNORED_DIRECTORIES = [
   '.features-gen',
@@ -58,56 +57,23 @@ export default function flexifinPreset(
   ...userConfigs: TypedFlatConfig[]
 ): Linter.Config[] {
   const rules: RuleOptions = {
-    // ### NATIVE RULES
-    // @ts-expect-error This is OK
-    curly: ['error', 'all'],
-    'no-unused-vars': 'off', // more info https://typescript-eslint.io/rules/no-unused-vars/#how-to-use
-    'no-nested-ternary': 'error',
-    'no-duplicate-imports': [
+    // ### STYLISTIC RULES
+    '@stylistic/padding-line-between-statements': [
       'error',
-      {
-        includeExports: true,
-        allowSeparateTypeImports: true,
-      },
+      { blankLine: 'always', next: 'return', prev: '*' },
     ],
-
-    // ### UNICORN RULES
-    'unicorn/filename-case': [
-      'error',
-      {
-        cases: {
-          camelCase: true,
-          pascalCase: true,
-          kebabCase: true,
-        },
-        // Flexifin specific shortcuts
-        ignore: ['MTP', 'IL', 'SME', 'GTM', 'SMS'],
-      },
-    ],
-    'unicorn/no-keyword-prefix': 'off',
-    'unicorn/no-null': 'off',
-    'unicorn/prefer-ternary': ['error', 'only-single-line'],
-    'unicorn/prefer-type-error': 'off',
-    'unicorn/prevent-abbreviations': [
-      'error',
-      {
-        replacements: Object.fromEntries(ALLOWED_ABBREVIATIONS.map((abbr) => [abbr, false])),
-        ignore: ['iSpis', 'utils', 'e2e'],
-      },
-    ],
-    'unicorn/better-regex': 'warn',
-
     // ### TYPESCRIPT RULES
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     '@typescript-eslint/consistent-type-imports': [
       'error',
       {
-        prefer: 'type-imports',
-        fixStyle: 'separate-type-imports',
         disallowTypeAnnotations: true,
+        fixStyle: 'separate-type-imports',
+        prefer: 'type-imports',
       },
     ],
     '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
+
     '@typescript-eslint/no-unused-vars': [
       'error',
       {
@@ -116,27 +82,45 @@ export default function flexifinPreset(
         varsIgnorePattern: '^_',
       },
     ],
-
-    // ### SIMPLE IMPORT SORT RULES
-    'simple-import-sort/imports': [
+    // ### NATIVE RULES
+    // @ts-expect-error This is OK
+    curly: ['error', 'all'],
+    'no-duplicate-imports': [
       'error',
       {
-        groups: [
-          ['^\\u0000'],
-          ['^node:(?!.*\\u0000$)'],
-          ['^@?\\w(?!.*\\u0000$)'],
-          ['^(?!.*\\u0000$)'],
-          ['^\\.(?!.*\\u0000$)'],
-          ['\\u0000$'],
-        ],
+        includeExports: true,
       },
     ],
-    'simple-import-sort/exports': 'error',
+    'no-nested-ternary': 'error',
+    'no-unused-vars': 'off', // more info https://typescript-eslint.io/rules/no-unused-vars/#how-to-use
+    'perfectionist/sort-arrays': 'off',
+    'unicorn/better-regex': 'warn',
 
-    // ### STYLISTIC RULES
-    '@stylistic/padding-line-between-statements': [
+    // ### UNICORN RULES
+    'unicorn/filename-case': [
       'error',
-      { blankLine: 'always', prev: '*', next: 'return' },
+      {
+        cases: {
+          camelCase: true,
+          kebabCase: true,
+          pascalCase: true,
+        },
+        // Flexifin specific shortcuts
+        ignore: ['MTP', 'IL', 'SME', 'GTM', 'SMS'],
+      },
+    ],
+    'unicorn/no-keyword-prefix': 'off',
+    'unicorn/no-null': 'off',
+    'unicorn/prefer-ternary': ['error', 'only-single-line'],
+
+    'unicorn/prefer-type-error': 'off',
+
+    'unicorn/prevent-abbreviations': [
+      'error',
+      {
+        ignore: ['iSpis', 'utils', 'e2e'],
+        replacements: Object.fromEntries(ALLOWED_ABBREVIATIONS.map((abbr) => [abbr, false])),
+      },
     ],
 
     // ### USER RULES
@@ -150,10 +134,11 @@ export default function flexifinPreset(
     ...tsEslint.configs.recommended,
     // https://github.com/sindresorhus/eslint-plugin-unicorn
     eslintPluginUnicorn.configs.recommended,
+    // https://perfectionist.dev/
+    eslintPluginPerfectionist.configs['recommended-natural'],
+
     {
       plugins: {
-        // https://github.com/lydell/eslint-plugin-simple-import-sort
-        'simple-import-sort': eslintPluginSimpleImportSort,
         // https://eslint.style
         '@stylistic': stylistic,
       },
@@ -167,22 +152,22 @@ export default function flexifinPreset(
     { rules: rules as Linter.RulesRecord },
     {
       languageOptions: {
+        globals: {
+          ...globals.node,
+          ...globals.es2025,
+          ...(config.reactSupport ? globals.browser : {}),
+        },
         parserOptions: {
-          warnOnUnsupportedTypeScriptVersion: false,
           projectService: {
             allowDefaultProject: ['*.js', '*.mjs', '*.cjs', '*.config.js', '*.config.mjs'],
             defaultProject: 'tsconfig.json',
           },
           tsconfigRootDir: config.tsconfigRootDir,
+          warnOnUnsupportedTypeScriptVersion: false,
           ...(config.nestSupport && {
-            experimentalDecorators: true,
             emitDecoratorMetadata: true,
+            experimentalDecorators: true,
           }),
-        },
-        globals: {
-          ...globals.node,
-          ...globals.es2026,
-          ...(config.reactSupport ? globals.browser : {}),
         },
       },
     },
@@ -221,10 +206,13 @@ export default function flexifinPreset(
           {
             files: ['**/*.tsx'],
             rules: {
-              'react/react-in-jsx-scope': 'off',
-              'react/prop-types': 'off',
               'react/boolean-prop-naming': 2,
-              'react/jsx-sort-props': 2,
+              'react/function-component-definition': [
+                2,
+                {
+                  namedComponents: ['arrow-function', 'function-declaration'],
+                },
+              ],
               'react/jsx-max-depth': [2, { max: 10 }],
               'react/no-children-prop': [
                 2,
@@ -232,12 +220,8 @@ export default function flexifinPreset(
                   allowFunctions: true,
                 },
               ],
-              'react/function-component-definition': [
-                2,
-                {
-                  namedComponents: ['arrow-function', 'function-declaration'],
-                },
-              ],
+              'react/prop-types': 'off',
+              'react/react-in-jsx-scope': 'off',
             },
           },
           {
