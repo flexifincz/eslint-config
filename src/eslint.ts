@@ -88,6 +88,7 @@ export default function flexifinPreset(
     'no-duplicate-imports': [
       'error',
       {
+        allowSeparateTypeImports: true,
         includeExports: true,
       },
     ],
