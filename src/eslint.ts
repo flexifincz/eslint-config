@@ -5,6 +5,7 @@ import stylistic from '@stylistic/eslint-plugin';
 import eslintPluginCasePolice from 'eslint-plugin-case-police';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginReact from 'eslint-plugin-react';
+import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import globals from 'globals';
@@ -18,11 +19,12 @@ export type MainConfig = {
   reactSupport?: boolean;
   nestSupport?: boolean;
   rules?: RuleOptions;
+  tsconfigRootDir?: string;
 };
 
 export type TypedFlatConfig = {
   rules?: RuleOptions;
-} & Omit<Linter.FlatConfig, 'rules'>;
+} & Omit<Linter.Config, 'rules'>;
 
 const IGNORED_DIRECTORIES = [
   '.features-gen',
@@ -141,23 +143,18 @@ export default function flexifinPreset(
     ...config.rules,
   };
 
-  // noinspection UnnecessaryLocalVariableJS
-  const resultConfig: Linter.FlatConfig[] = [
+  const resultConfig: Linter.Config[] = [
     // https://eslint.org/docs/latest/rules/
     eslint.configs.recommended,
     // https://typescript-eslint.io/
-    ...(tsEslint.configs.recommended as Linter.Config[]),
+    ...tsEslint.configs.recommended,
     // https://github.com/sindresorhus/eslint-plugin-unicorn
-    eslintPluginUnicorn.configs['flat/recommended'] as Linter.Config,
-    // https://github.com/lydell/eslint-plugin-simple-import-sort
+    eslintPluginUnicorn.configs.recommended,
     {
       plugins: {
+        // https://github.com/lydell/eslint-plugin-simple-import-sort
         'simple-import-sort': eslintPluginSimpleImportSort,
-      },
-    },
-    // https://eslint.style
-    {
-      plugins: {
+        // https://eslint.style
         '@stylistic': stylistic,
       },
     },
@@ -172,18 +169,21 @@ export default function flexifinPreset(
       languageOptions: {
         parserOptions: {
           warnOnUnsupportedTypeScriptVersion: false,
+          projectService: true,
+          tsconfigRootDir: config.tsconfigRootDir,
           ...(config.nestSupport && {
             experimentalDecorators: true,
             emitDecoratorMetadata: true,
           }),
         },
-        globals: Object.fromEntries(
-          Object.keys(globals).flatMap((group) =>
-            Object.keys(globals[group as keyof typeof globals]).map((key) => [key, true])
-          )
-        ),
+        globals: {
+          ...globals.node,
+          ...globals.es2026,
+          ...(config.reactSupport ? globals.browser : {}),
+        },
       },
     },
+
     {
       ignores: [...IGNORED_DIRECTORIES, ...(config.ignores || [])],
     },
@@ -203,15 +203,15 @@ export default function flexifinPreset(
     ...((config.reactSupport
       ? [
           {
-            settings: {
-              react: {
-                version: 'detect',
-              },
-            },
+            files: ['**/*.tsx'],
+            ...eslintPluginReact.configs.flat.recommended,
+          },
+          {
+            files: ['**/*.tsx', '**/*.ts'],
+            ...eslintPluginReactHooks.configs.flat.recommended,
           },
           {
             files: ['**/*.tsx'],
-            ...eslintPluginReact.configs.flat.recommended,
             rules: {
               'react/boolean-prop-naming': 2,
               'react/jsx-sort-props': 2,
