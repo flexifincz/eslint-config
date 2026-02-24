@@ -69,7 +69,9 @@ export default function flexifinPreset(
     ],
 
     // ### TYPESCRIPT RULES
-    '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    ...(!config.nestSupport && {
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    }),
     '@typescript-eslint/consistent-type-imports': [
       'error',
       {
