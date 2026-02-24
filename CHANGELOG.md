@@ -1,3 +1,15 @@
+## v2.1.0
+
+[compare changes](https://github.com/flexifincz/eslint-config/compare/v2.0.3...v2.1.0)
+
+### 🚀 Enhancements
+
+- Enable interfaces for Nest apps ([#21](https://github.com/flexifincz/eslint-config/pull/21))
+
+### ❤️ Contributors
+
+- Vojtěch Ferák <vojtech.ferak@techfides.net>
+
 ## v2.0.3
 
 [compare changes](https://github.com/flexifincz/eslint-config/compare/v1.8.7...v2.0.3)
