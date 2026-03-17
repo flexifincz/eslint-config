@@ -38,6 +38,7 @@ const IGNORED_DIRECTORIES = [
   'coverage-reports',
   'dist',
   'monocart-report',
+  'next-env.d.ts',
   'playwright-report',
   'test-results',
 ];
@@ -113,7 +114,6 @@ export default function flexifinPreset(
           kebabCase: true,
           pascalCase: true,
         },
-        // Flexifin specific shortcuts
         ignore: ['MTP', 'IL', 'SME', 'GTM', 'SMS'],
       },
     ],
