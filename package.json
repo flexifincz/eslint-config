@@ -28,17 +28,25 @@
     "test": "pnpm lint:check && pnpm types:check"
   },
   "dependencies": {
+    "@darraghor/eslint-plugin-nestjs-typed": "^7.1.32",
     "@eslint-react/eslint-plugin": "^5.7.2",
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "^16.2.4",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "@tanstack/eslint-plugin-query": "^5.100.9",
+    "@vitest/eslint-plugin": "^1.6.16",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-case-police": "^2.2.1",
     "eslint-plugin-i18next": "^6.1.4",
+    "eslint-plugin-import-x": "^4.16.2",
+    "eslint-plugin-jest": "^29.15.2",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-n": "^18.0.1",
     "eslint-plugin-perfectionist": "^5.9.0",
     "eslint-plugin-playwright": "^2.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-regexp": "^3.1.0",
+    "eslint-plugin-sonarjs": "^4.0.3",
     "eslint-plugin-storybook": "^10.3.6",
     "eslint-plugin-unicorn": "^64.0.0",
     "globals": "^17.6.0",
@@ -62,6 +70,9 @@
     "eslint": "*",
     "prettier": "*",
     "typescript": "*"
+  },
+  "engines": {
+    "node": ">=24.0.0"
   },
   "packageManager": "pnpm@10.29.3",
   "pnpm": {
