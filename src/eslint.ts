@@ -236,15 +236,27 @@ const REACT_DUPLICATE_RULES_OFF = {
   '@eslint-react/use-memo': 'off',
 } as unknown as RuleOptions;
 
-const DECLARATION_FILES_OVERRIDES: Linter.Config = {
-  files: ['**/*.d.ts'],
-  rules: {
-    '@typescript-eslint/consistent-type-definitions': 'off',
-    '@typescript-eslint/no-empty-object-type': 'off',
-    '@typescript-eslint/triple-slash-reference': 'off',
-    'unicorn/require-module-specifiers': 'off',
-  },
-};
+function buildDeclarationFilesOverride(
+  enabledPlugins: Required<PluginsConfig>
+): Linter.Config | null {
+  const rules: Linter.RulesRecord = {};
+
+  if (enabledPlugins.typescriptEslint) {
+    rules['@typescript-eslint/consistent-type-definitions'] = 'off';
+    rules['@typescript-eslint/no-empty-object-type'] = 'off';
+    rules['@typescript-eslint/triple-slash-reference'] = 'off';
+  }
+
+  if (enabledPlugins.unicorn) {
+    rules['unicorn/require-module-specifiers'] = 'off';
+  }
+
+  if (Object.keys(rules).length === 0) {
+    return null;
+  }
+
+  return { files: ['**/*.d.ts'], rules };
+}
 
 const LINTER_OPTIONS: Linter.Config = {
   linterOptions: {
@@ -351,6 +363,8 @@ export default function flexifinPreset(
 ): Linter.Config[] {
   const enabledPlugins: Required<PluginsConfig> = { ...DEFAULT_PLUGINS, ...config.plugins };
 
+  const declarationOverride = buildDeclarationFilesOverride(enabledPlugins);
+
   return [
     globalIgnores([...IGNORED_DIRECTORIES, ...(config.ignores ?? [])]),
     LINTER_OPTIONS,
@@ -361,10 +375,14 @@ export default function flexifinPreset(
     ...buildBackendConfigs(config, enabledPlugins),
 
     { rules: buildUniversalRules(config, enabledPlugins) },
-    { files: TS_FILES, rules: buildTypeScriptRules(config) },
-    { files: JS_FILES, rules: JS_NATIVE_RULES as Linter.RulesRecord },
+    ...(enabledPlugins.typescriptEslint
+      ? [{ files: TS_FILES, rules: buildTypeScriptRules(config) }]
+      : []),
+    ...(enabledPlugins.js
+      ? [{ files: JS_FILES, rules: JS_NATIVE_RULES as Linter.RulesRecord }]
+      : []),
 
-    DECLARATION_FILES_OVERRIDES,
+    ...(declarationOverride ? [declarationOverride] : []),
     ...buildTestConfigs(enabledPlugins),
     ...(config.reactSupport ? buildReactConfigs(config, enabledPlugins) : []),
     ...(userConfigs as Linter.Config[]),
@@ -405,7 +423,10 @@ function buildBaseConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Confi
   if (enabledPlugins.typescriptEslint) {
     configs.push(
       ...(defineConfig({
-        extends: [...tsEslint.configs.strictTypeChecked, ...tsEslint.configs.stylisticTypeChecked],
+        extends: [
+          ...tsEslint.configs.recommendedTypeChecked,
+          ...tsEslint.configs.stylisticTypeChecked,
+        ],
         files: TS_FILES,
       }) as unknown as Linter.Config[]),
       { files: JS_FILES, ...tsEslint.configs.disableTypeChecked }

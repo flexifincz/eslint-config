@@ -106,7 +106,7 @@ export default flexiFin();
 
 ## Performance tips
 
-The preset bundles ~22 plugins with type-aware rules from `typescript-eslint`'s `strictTypeChecked`. A cold run on a typical NestJS/Next app touches every file through the TypeScript checker, so use these defaults to keep things fast:
+The preset bundles ~22 plugins with type-aware rules from `typescript-eslint`'s `recommendedTypeChecked` + `stylisticTypeChecked`. A cold run on a typical NestJS/Next app touches every file through the TypeScript checker, so use these defaults to keep things fast:
 
 ```jsonc
 // package.json
