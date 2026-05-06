@@ -104,6 +104,28 @@ import flexiFin from '@flexifin/eslint-config/prettier';
 export default flexiFin();
 ```
 
+## Silencing peer-dependency warnings
+
+Some bundled plugins declare peer dependencies that don't apply to every project (e.g. `class-validator` is only relevant for NestJS apps; `eslint-plugin-jsx-a11y` lags behind ESLint v10). Add the following to your monorepo root `package.json` to silence the noise:
+
+```json
+{
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "eslint-plugin-jsx-a11y>eslint": "10",
+        "eslint-plugin-storybook>storybook": ">=10.3.5"
+      },
+      "ignoreMissing": ["class-validator"]
+    }
+  }
+}
+```
+
+NestJS apps that already use `class-validator` do not need the `ignoreMissing` entry — install the dependency normally. Front-end / non-Nest packages should keep it.
+
+To approve native build scripts (`unrs-resolver` etc.), run `pnpm approve-builds` once.
+
 ## Contributors
 
 <a href="https://github.com/flexifincz/eslint-config/graphs/contributors">

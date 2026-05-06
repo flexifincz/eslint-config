@@ -29,6 +29,9 @@ importers:
       '@vitest/eslint-plugin':
         specifier: ^1.6.16
         version: 1.6.16(@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)
+      class-validator:
+        specifier: '*'
+        version: 0.15.1
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@10.3.0(jiti@2.7.0))
