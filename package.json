@@ -28,7 +28,7 @@
     "test": "pnpm lint:check && pnpm types:check"
   },
   "dependencies": {
-    "@eslint-react/eslint-plugin": "^4.2.3",
+    "@eslint-react/eslint-plugin": "^5.7.2",
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "^16.2.4",
     "@stylistic/eslint-plugin": "^5.10.0",
@@ -39,10 +39,10 @@
     "eslint-plugin-perfectionist": "^5.9.0",
     "eslint-plugin-playwright": "^2.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-storybook": "^10.3.5",
+    "eslint-plugin-storybook": "^10.3.6",
     "eslint-plugin-unicorn": "^64.0.0",
-    "globals": "^17.5.0",
-    "typescript-eslint": "^8.59.0"
+    "globals": "^17.6.0",
+    "typescript-eslint": "^8.59.2"
   },
   "devDependencies": {
     "@eslint/config-inspector": "^1.5.0",
@@ -51,9 +51,9 @@
     "@types/node": "^25.6.0",
     "automd": "^0.4.3",
     "changelogen": "^0.6.2",
-    "eslint": "^10.2.1",
+    "eslint": "^10.3.0",
     "eslint-typegen": "^2.3.1",
-    "jiti": "^2.6.1",
+    "jiti": "^2.7.0",
     "prettier": "^3.8.3",
     "typescript": "^5.9.3",
     "unbuild": "^3.6.0"
