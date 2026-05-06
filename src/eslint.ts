@@ -141,6 +141,12 @@ const STYLISTIC_RULES: RuleOptions = {
   ],
 };
 
+const UNUSED_VARS_OPTIONS = {
+  argsIgnorePattern: '^_',
+  destructuredArrayIgnorePattern: '^_',
+  varsIgnorePattern: '^_',
+};
+
 const TYPESCRIPT_RULES: RuleOptions = {
   '@typescript-eslint/consistent-type-imports': [
     'error',
@@ -151,26 +157,19 @@ const TYPESCRIPT_RULES: RuleOptions = {
     },
   ],
   '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
-  '@typescript-eslint/no-unused-vars': [
-    'error',
-    {
-      argsIgnorePattern: '^_',
-      destructuredArrayIgnorePattern: '^_',
-      varsIgnorePattern: '^_',
-    },
-  ],
+  '@typescript-eslint/no-unused-vars': ['error', UNUSED_VARS_OPTIONS],
 };
 
 const NATIVE_RULES: RuleOptions = {
   // @ts-expect-error curly options are not modeled in the generated RuleOptions
   curly: ['error', 'all'],
-  'no-nested-ternary': 'error',
-  // Superseded by @typescript-eslint/no-unused-vars — https://typescript-eslint.io/rules/no-unused-vars/
-  'no-unused-vars': 'off',
 };
 
+const JS_NATIVE_RULES = {
+  'no-unused-vars': ['error', UNUSED_VARS_OPTIONS],
+} as unknown as RuleOptions;
+
 const UNICORN_RULES: RuleOptions = {
-  'unicorn/better-regex': 'warn',
   'unicorn/filename-case': [
     'error',
     {
@@ -182,8 +181,8 @@ const UNICORN_RULES: RuleOptions = {
       ignore: ['MTP', 'IL', 'SME', 'GTM', 'SMS'],
     },
   ],
-  'unicorn/no-keyword-prefix': 'off',
   'unicorn/no-null': 'off',
+  'unicorn/no-process-exit': 'off',
   'unicorn/prefer-ternary': ['error', 'only-single-line'],
   'unicorn/prefer-type-error': 'off',
   'unicorn/prevent-abbreviations': [
@@ -361,6 +360,7 @@ export default function flexifinPreset(
 
     { rules: buildUniversalRules(config, enabledPlugins) },
     { files: TS_FILES, rules: buildTypeScriptRules(config) },
+    { files: JS_FILES, rules: JS_NATIVE_RULES as Linter.RulesRecord },
 
     DECLARATION_FILES_OVERRIDES,
     ...buildTestConfigs(enabledPlugins),
