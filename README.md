@@ -58,11 +58,12 @@ export default flexiFin({
   tsconfigRootDir: import.meta.dirname,
   reactSupport: true, // optional (React projects)
   nestSupport: true, // optional (NestJS projects)
-  muiSupport: true, // optional (MUI projects, restricts deep imports)
+  muiSupport: true, // optional (MUI projects, blocks barrel imports for tree-shaking)
+  swaggerSupport: false, // optional (NestJS without Swagger — disables Swagger-specific rules)
   plugins: {
-    // every plugin defaults to true — set false to opt out individually
-    // sonarjs: false,
-    // perfectionist: false,
+    // Every plugin defaults to true EXCEPT `jest` (off — Vitest is the default test runner).
+    // Set false to opt out individually. Jest projects opt in:
+    // jest: true, vitest: false,
   },
   ignores: [
     // ignore paths

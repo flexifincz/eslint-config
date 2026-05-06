@@ -21,7 +21,7 @@ import eslintPluginRegexp from 'eslint-plugin-regexp';
 import eslintPluginSonarjs from 'eslint-plugin-sonarjs';
 import eslintPluginStorybook from 'eslint-plugin-storybook';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tsEslint from 'typescript-eslint';
 
@@ -34,6 +34,7 @@ export type MainConfig = {
   plugins?: PluginsConfig;
   reactSupport?: boolean;
   rules?: RuleOptions;
+  swaggerSupport?: boolean;
   tsconfigRootDir?: string;
 };
 
@@ -71,7 +72,7 @@ const DEFAULT_PLUGINS: Required<PluginsConfig> = {
   eslintReact: true,
   i18next: true,
   importX: true,
-  jest: true,
+  jest: false,
   js: true,
   jsxA11y: true,
   nestjsTyped: true,
@@ -198,7 +199,6 @@ const UNICORN_RULES: RuleOptions = {
 
 const IMPORT_RULES: RuleOptions = {
   'import-x/consistent-type-specifier-style': ['error', 'prefer-top-level'],
-  // Resolver-dependent rules duplicate TypeScript's own checks; defer to tsc.
   'import-x/default': 'off',
   'import-x/first': 'error',
   'import-x/named': 'off',
@@ -214,7 +214,6 @@ const IMPORT_RULES: RuleOptions = {
 };
 
 const NODE_RULES: RuleOptions = {
-  // TypeScript handles module resolution; n's check produces false positives on TS path aliases.
   'n/no-missing-import': 'off',
 };
 
@@ -222,12 +221,8 @@ const SONARJS_OVERRIDES: RuleOptions = {
   'sonarjs/todo-tag': 'off',
 };
 
-// sonarjs.configs is typed as optional but is always defined at runtime.
 const SONARJS_CONFIG = (eslintPluginSonarjs.configs ?? { recommended: {} }).recommended;
 
-// Hooks ownership: react-hooks (official) owns hooks-related rules — @eslint-react v5 still
-// ships duplicates we must silence to avoid double-reporting. react-hooks v7 uniquely covers
-// `refs` and `preserve-manual-memoization`, which is why we keep it as the source of truth.
 const REACT_DUPLICATE_RULES_OFF = {
   '@eslint-react/error-boundaries': 'off',
   '@eslint-react/exhaustive-deps': 'off',
@@ -273,6 +268,7 @@ const PLAYWRIGHT_CONFIG: Linter.Config = {
 const VITEST_CONFIG: Linter.Config = {
   files: TEST_FILES,
   ...eslintPluginVitest.configs.recommended,
+  languageOptions: { globals: eslintPluginVitest.environments.env.globals },
 };
 
 const JEST_CONFIG: Linter.Config = {
@@ -285,25 +281,30 @@ const NEXT_CONFIG: Linter.Config = {
   ...eslintPluginNext.configs['core-web-vitals'],
 };
 
-const TANSTACK_QUERY_CONFIGS = eslintPluginTanstackQuery.configs[
-  'flat/recommended-strict'
-] as unknown as Linter.Config[];
+const TANSTACK_QUERY_CONFIGS = (
+  eslintPluginTanstackQuery.configs['flat/recommended-strict'] as unknown as Linter.Config[]
+).map((config) => ({ ...config, files: [...TS_FILES, ...JSX_FILES] }));
 
 const I18N_CONFIG: Linter.Config = {
   files: JSX_FILES,
   ignores: ['**/*.{test,spec,stories}.{js,jsx,ts,tsx}', '**/*.e2e.{js,jsx,ts,tsx}', '**/e2e/**'],
   ...eslintPluginI18next.configs['flat/recommended'],
   rules: {
-    // Recommended severity is 'error' — downgraded to 'warn' for gradual i18n migration
     'i18next/no-literal-string': 'warn',
   },
 };
 
-const REACT_BASE_CONFIG: Linter.Config = { settings: { react: { version: 'detect' } } };
+const REACT_BASE_CONFIG: Linter.Config = {
+  settings: {
+    // @eslint-react v5 reads `react-x.version`; classic eslint-plugin-react reads `react.version`.
+    react: { version: 'detect' },
+    'react-x': { version: 'detect' },
+  },
+};
 
 const ESLINT_REACT_CONFIGS: Linter.Config[] = [
   {
-    files: ['**/*.tsx'],
+    files: [...TS_FILES, ...JSX_FILES],
     ...eslintPluginReact.configs['recommended-typescript'],
   },
 ];
@@ -334,8 +335,8 @@ const MUI_CONFIG: Linter.Config = {
       {
         patterns: [
           {
-            group: ['@mui/*/*/*', '!@mui/material/test-utils/*'],
-            message: 'Import from the package root for tree-shaking, e.g. `@mui/material/Button`.',
+            message: 'Use a deep path import for tree-shaking, e.g. `@mui/material/Button`.',
+            regex: '^@mui/[^/]+$',
           },
         ],
       },
@@ -350,7 +351,7 @@ export default function flexifinPreset(
   const enabledPlugins: Required<PluginsConfig> = { ...DEFAULT_PLUGINS, ...config.plugins };
 
   return [
-    { ignores: [...IGNORED_DIRECTORIES, ...(config.ignores ?? [])] },
+    globalIgnores([...IGNORED_DIRECTORIES, ...(config.ignores ?? [])]),
     LINTER_OPTIONS,
     buildLanguageOptions(config),
 
@@ -375,11 +376,21 @@ function buildBackendConfigs(
   config: MainConfig,
   enabledPlugins: Required<PluginsConfig>
 ): Linter.Config[] {
-  if (config.nestSupport) {
-    return enabledPlugins.nestjsTyped ? NESTJS_CONFIGS : [];
+  if (!config.nestSupport) {
+    return enabledPlugins.node ? [eslintPluginNode.configs['flat/recommended']] : [];
   }
 
-  return enabledPlugins.node ? [eslintPluginNode.configs['flat/recommended']] : [];
+  if (!enabledPlugins.nestjsTyped) {
+    return [];
+  }
+
+  const configs: Linter.Config[] = [...NESTJS_CONFIGS];
+
+  if (config.swaggerSupport === false) {
+    configs.push(...eslintPluginNestjsTyped.configs.flatNoSwagger);
+  }
+
+  return configs;
 }
 
 function buildBaseConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
@@ -388,6 +399,7 @@ function buildBaseConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Confi
   if (enabledPlugins.js) {
     configs.push(eslint.configs.recommended);
   }
+
   if (enabledPlugins.typescriptEslint) {
     configs.push(
       ...(defineConfig({
@@ -434,27 +446,34 @@ function buildReactConfigs(
   if (enabledPlugins.eslintReact) {
     configs.push(...ESLINT_REACT_CONFIGS);
   }
+
   if (enabledPlugins.eslintReact && enabledPlugins.reactHooks) {
     configs.push({
-      files: ['**/*.tsx'],
+      files: [...TS_FILES, ...JSX_FILES],
       rules: REACT_DUPLICATE_RULES_OFF as Linter.RulesRecord,
     });
   }
+
   if (enabledPlugins.reactHooks) {
     configs.push(...REACT_HOOKS_CONFIGS);
   }
+
   if (enabledPlugins.jsxA11y) {
     configs.push(JSX_A11Y_CONFIG);
   }
+
   if (enabledPlugins.next) {
     configs.push(NEXT_CONFIG);
   }
+
   if (enabledPlugins.i18next) {
     configs.push(I18N_CONFIG);
   }
+
   if (enabledPlugins.tanstackQuery) {
     configs.push(...TANSTACK_QUERY_CONFIGS);
   }
+
   if (config.muiSupport) {
     configs.push(MUI_CONFIG);
   }
@@ -468,12 +487,15 @@ function buildTestConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Confi
   if (enabledPlugins.storybook) {
     configs.push(...STORYBOOK_CONFIGS);
   }
+
   if (enabledPlugins.playwright) {
     configs.push(PLAYWRIGHT_CONFIG);
   }
+
   if (enabledPlugins.vitest) {
     configs.push(VITEST_CONFIG);
   }
+
   if (enabledPlugins.jest) {
     configs.push(JEST_CONFIG);
   }
@@ -487,21 +509,27 @@ function buildToolingConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Co
   if (enabledPlugins.unicorn) {
     configs.push(eslintPluginUnicorn.configs.recommended);
   }
+
   if (enabledPlugins.importX) {
     configs.push(eslintPluginImportX.flatConfigs.recommended);
   }
+
   if (enabledPlugins.sonarjs) {
     configs.push(SONARJS_CONFIG as Linter.Config);
   }
+
   if (enabledPlugins.regexp) {
     configs.push(eslintPluginRegexp.configs['flat/recommended']);
   }
+
   if (enabledPlugins.perfectionist) {
     configs.push(...PERFECTIONIST_CONFIGS);
   }
+
   if (enabledPlugins.stylistic) {
     configs.push({ plugins: { '@stylistic': eslintPluginStylistic } });
   }
+
   if (enabledPlugins.casePolice) {
     configs.push(...(eslintPluginCasePolice.configs.recommended as unknown as Linter.Config[]));
   }
@@ -512,7 +540,6 @@ function buildToolingConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Co
 function buildTypeScriptRules(config: MainConfig): Linter.RulesRecord {
   const rules: RuleOptions = {
     ...TYPESCRIPT_RULES,
-    // Nest framework types (e.g. OnModuleInit) follow `interface` convention; relax outside Nest.
     ...(!config.nestSupport && {
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     }),
