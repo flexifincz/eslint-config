@@ -1,3 +1,7 @@
+## v2.5.2
+
+[compare changes](https://github.com/flexifincz/eslint-config/compare/v2.4.2...v2.5.2)
+
 ## v2.4.2
 
 [compare changes](https://github.com/flexifincz/eslint-config/compare/v2.3.1...v2.4.2)
