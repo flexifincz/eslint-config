@@ -218,6 +218,7 @@ const NODE_RULES: RuleOptions = {
 };
 
 const SONARJS_OVERRIDES: RuleOptions = {
+  'sonarjs/deprecation': 'off',
   'sonarjs/todo-tag': 'off',
 };
 

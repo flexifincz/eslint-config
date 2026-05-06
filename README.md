@@ -104,9 +104,34 @@ import flexiFin from '@flexifin/eslint-config/prettier';
 export default flexiFin();
 ```
 
+## Performance tips
+
+The preset bundles ~22 plugins with type-aware rules from `typescript-eslint`'s `strictTypeChecked`. A cold run on a typical NestJS/Next app touches every file through the TypeScript checker, so use these defaults to keep things fast:
+
+```jsonc
+// package.json
+{
+  "scripts": {
+    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint",
+    "lint:fix": "eslint . --cache --cache-location node_modules/.cache/eslint --fix",
+  },
+}
+```
+
+`--cache` skips files whose hash and config haven't changed; the second run is typically 2–3× faster than the first.
+
+For IDE / pre-commit feedback, run `eslint_d` (daemon mode) — it keeps the parser and TS checker warm between invocations:
+
+```sh
+pnpm dlx eslint_d start
+# point your editor at `eslint_d` instead of `eslint`
+```
+
+For pre-commit hooks, lint only changed files via `lint-staged` — full-repo lint should be reserved for CI.
+
 ## Silencing peer-dependency warnings
 
-Some bundled plugins declare peer dependencies that don't apply to every project (e.g. `class-validator` is only relevant for NestJS apps; `eslint-plugin-jsx-a11y` lags behind ESLint v10). Add the following to your monorepo root `package.json` to silence the noise:
+Some bundled plugins declare peers that don't apply to every project: `@darraghor/eslint-plugin-nestjs-typed` peer-deps on `class-validator` (relevant only for NestJS apps), `eslint-plugin-jsx-a11y` is still pinned to ESLint ≤9, and `eslint-plugin-storybook` requires Storybook 10.3.6+. Add the following to your monorepo root `package.json` to silence the noise:
 
 ```json
 {
@@ -122,7 +147,7 @@ Some bundled plugins declare peer dependencies that don't apply to every project
 }
 ```
 
-NestJS apps that already use `class-validator` do not need the `ignoreMissing` entry — install the dependency normally. Front-end / non-Nest packages should keep it.
+NestJS apps already use `class-validator` at runtime, so the `ignoreMissing` entry only matters for front-end / non-Nest packages — keep it monorepo-wide and the warning disappears regardless of project type.
 
 To approve native build scripts (`unrs-resolver` etc.), run `pnpm approve-builds` once.
 

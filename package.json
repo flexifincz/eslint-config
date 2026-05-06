@@ -1,6 +1,6 @@
 {
   "name": "@flexifin/eslint-config",
-  "version": "2.5.2",
+  "version": "2.5.5",
   "description": "Code service level repo for sharing common sources through several FF projects.",
   "repository": "flexifincz/eslint-config",
   "license": "UNLICENSED",
@@ -64,18 +64,12 @@
     "jiti": "^2.7.0",
     "prettier": "^3.8.3",
     "typescript": "^5.9.3",
-    "unbuild": "^3.6.0"
+    "unbuild": "^3.6.1"
   },
   "peerDependencies": {
-    "class-validator": "*",
     "eslint": "*",
     "prettier": "*",
     "typescript": "*"
-  },
-  "peerDependenciesMeta": {
-    "class-validator": {
-      "optional": true
-    }
   },
   "engines": {
     "node": ">=24.0.0"
