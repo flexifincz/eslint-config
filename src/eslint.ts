@@ -163,6 +163,7 @@ const TYPESCRIPT_RULES: RuleOptions = {
 const NATIVE_RULES: RuleOptions = {
   // @ts-expect-error curly options are not modeled in the generated RuleOptions
   curly: ['error', 'all'],
+  eqeqeq: ['error', 'always'],
 };
 
 const JS_NATIVE_RULES = {
