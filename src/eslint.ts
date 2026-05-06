@@ -1,24 +1,24 @@
 import type { Linter } from 'eslint';
 
-import nestjsTyped from '@darraghor/eslint-plugin-nestjs-typed';
+import eslintPluginNestjsTyped from '@darraghor/eslint-plugin-nestjs-typed';
 import eslintPluginReact from '@eslint-react/eslint-plugin';
 import eslint from '@eslint/js';
 import eslintPluginNext from '@next/eslint-plugin-next';
-import stylistic from '@stylistic/eslint-plugin';
-import pluginQuery from '@tanstack/eslint-plugin-query';
-import vitest from '@vitest/eslint-plugin';
-import prettierConfig from 'eslint-config-prettier/flat';
+import eslintPluginStylistic from '@stylistic/eslint-plugin';
+import eslintPluginTanstackQuery from '@tanstack/eslint-plugin-query';
+import eslintPluginVitest from '@vitest/eslint-plugin';
+import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import eslintPluginCasePolice from 'eslint-plugin-case-police';
 import eslintPluginI18next from 'eslint-plugin-i18next';
-import importX from 'eslint-plugin-import-x';
-import jest from 'eslint-plugin-jest';
+import eslintPluginImportX from 'eslint-plugin-import-x';
+import eslintPluginJest from 'eslint-plugin-jest';
 import eslintPluginJsxA11y from 'eslint-plugin-jsx-a11y';
-import nodePlugin from 'eslint-plugin-n';
+import eslintPluginNode from 'eslint-plugin-n';
 import eslintPluginPerfectionist from 'eslint-plugin-perfectionist';
 import eslintPluginPlaywright from 'eslint-plugin-playwright';
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
-import regexpPlugin from 'eslint-plugin-regexp';
-import sonarjs from 'eslint-plugin-sonarjs';
+import eslintPluginRegexp from 'eslint-plugin-regexp';
+import eslintPluginSonarjs from 'eslint-plugin-sonarjs';
 import eslintPluginStorybook from 'eslint-plugin-storybook';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import { defineConfig } from 'eslint/config';
@@ -28,21 +28,67 @@ import tsEslint from 'typescript-eslint';
 import type { RuleOptions } from './types.gen';
 
 export type MainConfig = {
-  enablePerfectionist?: boolean;
-  /** @deprecated Use `enablePerfectionist` instead. */
-  experimental?: {
-    enablePerfectionistPlugin?: boolean;
-  };
   ignores?: string[];
   muiSupport?: boolean;
   nestSupport?: boolean;
+  plugins?: PluginsConfig;
   reactSupport?: boolean;
   rules?: RuleOptions;
   tsconfigRootDir?: string;
 };
 
+export type PluginsConfig = {
+  casePolice?: boolean;
+  eslintReact?: boolean;
+  i18next?: boolean;
+  importX?: boolean;
+  jest?: boolean;
+  js?: boolean;
+  jsxA11y?: boolean;
+  nestjsTyped?: boolean;
+  next?: boolean;
+  node?: boolean;
+  perfectionist?: boolean;
+  playwright?: boolean;
+  prettier?: boolean;
+  reactHooks?: boolean;
+  regexp?: boolean;
+  sonarjs?: boolean;
+  storybook?: boolean;
+  stylistic?: boolean;
+  tanstackQuery?: boolean;
+  typescriptEslint?: boolean;
+  unicorn?: boolean;
+  vitest?: boolean;
+};
+
 export type TypedFlatConfig = Omit<Linter.Config, 'rules'> & {
   rules?: RuleOptions;
+};
+
+const DEFAULT_PLUGINS: Required<PluginsConfig> = {
+  casePolice: true,
+  eslintReact: true,
+  i18next: true,
+  importX: true,
+  jest: true,
+  js: true,
+  jsxA11y: true,
+  nestjsTyped: true,
+  next: true,
+  node: true,
+  perfectionist: true,
+  playwright: true,
+  prettier: true,
+  reactHooks: true,
+  regexp: true,
+  sonarjs: true,
+  storybook: true,
+  stylistic: true,
+  tanstackQuery: true,
+  typescriptEslint: true,
+  unicorn: true,
+  vitest: true,
 };
 
 const IGNORED_DIRECTORIES = [
@@ -143,7 +189,9 @@ const UNICORN_RULES: RuleOptions = {
     'error',
     {
       ignore: ['iSpis', 'utils', 'e2e'],
-      replacements: Object.fromEntries(ALLOWED_ABBREVIATIONS.map((abbr) => [abbr, false])),
+      replacements: Object.fromEntries(
+        ALLOWED_ABBREVIATIONS.map((abbreviation) => [abbreviation, false])
+      ),
     },
   ],
 };
@@ -175,7 +223,7 @@ const SONARJS_OVERRIDES: RuleOptions = {
 };
 
 // sonarjs.configs is typed as optional but is always defined at runtime.
-const SONARJS_CONFIG = (sonarjs.configs ?? { recommended: {} }).recommended;
+const SONARJS_CONFIG = (eslintPluginSonarjs.configs ?? { recommended: {} }).recommended;
 
 // Hooks ownership: react-hooks (official) owns hooks-related rules — @eslint-react v5 still
 // ships duplicates we must silence to avoid double-reporting. react-hooks v7 uniquely covers
@@ -215,7 +263,7 @@ const PERFECTIONIST_CONFIGS: Linter.Config[] = [
 
 const STORYBOOK_CONFIGS: Linter.Config[] = (
   eslintPluginStorybook.configs['flat/recommended'] as Linter.Config[]
-).map((c) => ({ ...c, files: STORY_FILES }));
+).map((config) => ({ ...config, files: STORY_FILES }));
 
 const PLAYWRIGHT_CONFIG: Linter.Config = {
   files: PLAYWRIGHT_TEST_FILES,
@@ -224,12 +272,12 @@ const PLAYWRIGHT_CONFIG: Linter.Config = {
 
 const VITEST_CONFIG: Linter.Config = {
   files: TEST_FILES,
-  ...vitest.configs.recommended,
+  ...eslintPluginVitest.configs.recommended,
 };
 
 const JEST_CONFIG: Linter.Config = {
   files: TEST_FILES,
-  ...jest.configs['flat/recommended'],
+  ...eslintPluginJest.configs['flat/recommended'],
 };
 
 const NEXT_CONFIG: Linter.Config = {
@@ -237,7 +285,7 @@ const NEXT_CONFIG: Linter.Config = {
   ...eslintPluginNext.configs['core-web-vitals'],
 };
 
-const TANSTACK_QUERY_CONFIGS = pluginQuery.configs[
+const TANSTACK_QUERY_CONFIGS = eslintPluginTanstackQuery.configs[
   'flat/recommended-strict'
 ] as unknown as Linter.Config[];
 
@@ -251,31 +299,32 @@ const I18N_CONFIG: Linter.Config = {
   },
 };
 
-const REACT_CONFIGS = [
-  { settings: { react: { version: 'detect' } } },
+const REACT_BASE_CONFIG: Linter.Config = { settings: { react: { version: 'detect' } } };
+
+const ESLINT_REACT_CONFIGS: Linter.Config[] = [
   {
     files: ['**/*.tsx'],
     ...eslintPluginReact.configs['recommended-typescript'],
   },
-  {
-    files: ['**/*.tsx'],
-    rules: REACT_DUPLICATE_RULES_OFF,
-  },
+];
+
+const REACT_HOOKS_CONFIGS: Linter.Config[] = [
   {
     files: [...TS_FILES, ...JSX_FILES],
     ...eslintPluginReactHooks.configs.flat['recommended-latest'],
   },
   {
-    files: JSX_FILES,
-    ...eslintPluginJsxA11y.flatConfigs.recommended,
-  },
-  {
     files: ['**/*.stories.{ts,tsx}'],
     rules: { 'react-hooks/rules-of-hooks': 'off' },
   },
-] as Linter.Config[];
+];
 
-const NESTJS_CONFIGS = nestjsTyped.configs.flatRecommended;
+const JSX_A11Y_CONFIG: Linter.Config = {
+  files: JSX_FILES,
+  ...eslintPluginJsxA11y.flatConfigs.recommended,
+};
+
+const NESTJS_CONFIGS = eslintPluginNestjsTyped.configs.flatRecommended;
 
 const MUI_CONFIG: Linter.Config = {
   files: [...TS_FILES, ...JS_FILES],
@@ -298,58 +347,58 @@ export default function flexifinPreset(
   config: MainConfig = {},
   ...userConfigs: TypedFlatConfig[]
 ): Linter.Config[] {
-  const enablePerfectionist =
-    // eslint-disable-next-line @typescript-eslint/no-deprecated, sonarjs/deprecation -- legacy compatibility
-    config.experimental?.enablePerfectionistPlugin ?? config.enablePerfectionist ?? true;
+  const enabledPlugins: Required<PluginsConfig> = { ...DEFAULT_PLUGINS, ...config.plugins };
 
   return [
     { ignores: [...IGNORED_DIRECTORIES, ...(config.ignores ?? [])] },
     LINTER_OPTIONS,
     buildLanguageOptions(config),
 
-    eslint.configs.recommended,
+    ...buildBaseConfigs(enabledPlugins),
+    ...buildToolingConfigs(enabledPlugins),
+    ...buildBackendConfigs(config, enabledPlugins),
 
-    ...(defineConfig({
-      extends: [...tsEslint.configs.strictTypeChecked, ...tsEslint.configs.stylisticTypeChecked],
-      files: TS_FILES,
-    }) as unknown as Linter.Config[]),
-    { files: JS_FILES, ...tsEslint.configs.disableTypeChecked },
-
-    eslintPluginUnicorn.configs.recommended,
-    importX.flatConfigs.recommended,
-    SONARJS_CONFIG,
-    regexpPlugin.configs['flat/recommended'],
-    ...(enablePerfectionist ? PERFECTIONIST_CONFIGS : []),
-    { plugins: { '@stylistic': stylistic } },
-    ...eslintPluginCasePolice.configs.recommended,
-
-    ...(config.nestSupport ? [] : [nodePlugin.configs['flat/recommended']]),
-    ...(config.nestSupport ? NESTJS_CONFIGS : []),
-
-    { rules: buildUniversalRules(config) },
+    { rules: buildUniversalRules(config, enabledPlugins) },
     { files: TS_FILES, rules: buildTypeScriptRules(config) },
 
     DECLARATION_FILES_OVERRIDES,
-    ...STORYBOOK_CONFIGS,
-    PLAYWRIGHT_CONFIG,
-    VITEST_CONFIG,
-    JEST_CONFIG,
-
-    ...(config.reactSupport
-      ? [
-          ...REACT_CONFIGS,
-          NEXT_CONFIG,
-          I18N_CONFIG,
-          ...TANSTACK_QUERY_CONFIGS,
-          ...(config.muiSupport ? [MUI_CONFIG] : []),
-        ]
-      : []),
-
+    ...buildTestConfigs(enabledPlugins),
+    ...(config.reactSupport ? buildReactConfigs(config, enabledPlugins) : []),
     ...(userConfigs as Linter.Config[]),
 
     // eslint-config-prettier must run last — disables formatting rules that conflict with Prettier
-    prettierConfig,
+    ...(enabledPlugins.prettier ? [eslintConfigPrettier] : []),
   ] as Linter.Config[];
+}
+
+function buildBackendConfigs(
+  config: MainConfig,
+  enabledPlugins: Required<PluginsConfig>
+): Linter.Config[] {
+  if (config.nestSupport) {
+    return enabledPlugins.nestjsTyped ? NESTJS_CONFIGS : [];
+  }
+
+  return enabledPlugins.node ? [eslintPluginNode.configs['flat/recommended']] : [];
+}
+
+function buildBaseConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
+  const configs: Linter.Config[] = [];
+
+  if (enabledPlugins.js) {
+    configs.push(eslint.configs.recommended);
+  }
+  if (enabledPlugins.typescriptEslint) {
+    configs.push(
+      ...(defineConfig({
+        extends: [...tsEslint.configs.strictTypeChecked, ...tsEslint.configs.stylisticTypeChecked],
+        files: TS_FILES,
+      }) as unknown as Linter.Config[]),
+      { files: JS_FILES, ...tsEslint.configs.disableTypeChecked }
+    );
+  }
+
+  return configs;
 }
 
 function buildLanguageOptions(config: MainConfig): Linter.Config {
@@ -376,6 +425,90 @@ function buildLanguageOptions(config: MainConfig): Linter.Config {
   };
 }
 
+function buildReactConfigs(
+  config: MainConfig,
+  enabledPlugins: Required<PluginsConfig>
+): Linter.Config[] {
+  const configs: Linter.Config[] = [REACT_BASE_CONFIG];
+
+  if (enabledPlugins.eslintReact) {
+    configs.push(...ESLINT_REACT_CONFIGS);
+  }
+  if (enabledPlugins.eslintReact && enabledPlugins.reactHooks) {
+    configs.push({
+      files: ['**/*.tsx'],
+      rules: REACT_DUPLICATE_RULES_OFF as Linter.RulesRecord,
+    });
+  }
+  if (enabledPlugins.reactHooks) {
+    configs.push(...REACT_HOOKS_CONFIGS);
+  }
+  if (enabledPlugins.jsxA11y) {
+    configs.push(JSX_A11Y_CONFIG);
+  }
+  if (enabledPlugins.next) {
+    configs.push(NEXT_CONFIG);
+  }
+  if (enabledPlugins.i18next) {
+    configs.push(I18N_CONFIG);
+  }
+  if (enabledPlugins.tanstackQuery) {
+    configs.push(...TANSTACK_QUERY_CONFIGS);
+  }
+  if (config.muiSupport) {
+    configs.push(MUI_CONFIG);
+  }
+
+  return configs;
+}
+
+function buildTestConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
+  const configs: Linter.Config[] = [];
+
+  if (enabledPlugins.storybook) {
+    configs.push(...STORYBOOK_CONFIGS);
+  }
+  if (enabledPlugins.playwright) {
+    configs.push(PLAYWRIGHT_CONFIG);
+  }
+  if (enabledPlugins.vitest) {
+    configs.push(VITEST_CONFIG);
+  }
+  if (enabledPlugins.jest) {
+    configs.push(JEST_CONFIG);
+  }
+
+  return configs;
+}
+
+function buildToolingConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
+  const configs: Linter.Config[] = [];
+
+  if (enabledPlugins.unicorn) {
+    configs.push(eslintPluginUnicorn.configs.recommended);
+  }
+  if (enabledPlugins.importX) {
+    configs.push(eslintPluginImportX.flatConfigs.recommended);
+  }
+  if (enabledPlugins.sonarjs) {
+    configs.push(SONARJS_CONFIG as Linter.Config);
+  }
+  if (enabledPlugins.regexp) {
+    configs.push(eslintPluginRegexp.configs['flat/recommended']);
+  }
+  if (enabledPlugins.perfectionist) {
+    configs.push(...PERFECTIONIST_CONFIGS);
+  }
+  if (enabledPlugins.stylistic) {
+    configs.push({ plugins: { '@stylistic': eslintPluginStylistic } });
+  }
+  if (enabledPlugins.casePolice) {
+    configs.push(...(eslintPluginCasePolice.configs.recommended as unknown as Linter.Config[]));
+  }
+
+  return configs;
+}
+
 function buildTypeScriptRules(config: MainConfig): Linter.RulesRecord {
   const rules: RuleOptions = {
     ...TYPESCRIPT_RULES,
@@ -388,14 +521,17 @@ function buildTypeScriptRules(config: MainConfig): Linter.RulesRecord {
   return rules as Linter.RulesRecord;
 }
 
-function buildUniversalRules(config: MainConfig): Linter.RulesRecord {
+function buildUniversalRules(
+  config: MainConfig,
+  enabledPlugins: Required<PluginsConfig>
+): Linter.RulesRecord {
   const rules: RuleOptions = {
-    ...STYLISTIC_RULES,
+    ...(enabledPlugins.stylistic && STYLISTIC_RULES),
     ...NATIVE_RULES,
-    ...UNICORN_RULES,
-    ...IMPORT_RULES,
-    ...NODE_RULES,
-    ...SONARJS_OVERRIDES,
+    ...(enabledPlugins.unicorn && UNICORN_RULES),
+    ...(enabledPlugins.importX && IMPORT_RULES),
+    ...(enabledPlugins.node && NODE_RULES),
+    ...(enabledPlugins.sonarjs && SONARJS_OVERRIDES),
     ...config.rules,
   };
 

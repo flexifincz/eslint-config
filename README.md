@@ -58,8 +58,11 @@ export default flexiFin({
   tsconfigRootDir: import.meta.dirname,
   reactSupport: true, // optional (React projects)
   nestSupport: true, // optional (NestJS projects)
-  experimental: {
-    enablePerfectionistPlugin: true, // false by default
+  muiSupport: true, // optional (MUI projects, restricts deep imports)
+  plugins: {
+    // every plugin defaults to true — set false to opt out individually
+    // sonarjs: false,
+    // perfectionist: false,
   },
   ignores: [
     // ignore paths
