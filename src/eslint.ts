@@ -34,6 +34,7 @@ export type MainConfig = {
   plugins?: PluginsConfig;
   reactSupport?: boolean;
   rules?: RuleOptions;
+  strict?: boolean;
   swaggerSupport?: boolean;
   tsconfigRootDir?: string;
 };
@@ -370,7 +371,7 @@ export default function flexifinPreset(
     LINTER_OPTIONS,
     buildLanguageOptions(config),
 
-    ...buildBaseConfigs(enabledPlugins),
+    ...buildBaseConfigs(config, enabledPlugins),
     ...buildToolingConfigs(enabledPlugins),
     ...buildBackendConfigs(config, enabledPlugins),
 
@@ -413,14 +414,23 @@ function buildBackendConfigs(
   return configs;
 }
 
-function buildBaseConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
+function buildBaseConfigs(
+  config: MainConfig,
+  enabledPlugins: Required<PluginsConfig>
+): Linter.Config[] {
   const configs: Linter.Config[] = [];
 
   if (enabledPlugins.js) {
     configs.push(eslint.configs.recommended);
   }
 
-  if (enabledPlugins.typescriptEslint) {
+  if (!enabledPlugins.typescriptEslint) {
+    return configs;
+  }
+
+  configs.push({ plugins: { '@typescript-eslint': tsEslint.plugin } });
+
+  if (config.strict) {
     configs.push(
       ...(defineConfig({
         extends: [
@@ -431,6 +441,8 @@ function buildBaseConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Confi
       }) as unknown as Linter.Config[]),
       { files: JS_FILES, ...tsEslint.configs.disableTypeChecked }
     );
+  } else {
+    configs.push(...(tsEslint.configs.recommended as Linter.Config[]));
   }
 
   return configs;
@@ -445,11 +457,13 @@ function buildLanguageOptions(config: MainConfig): Linter.Config {
         ...(config.reactSupport ? globals.browser : {}),
       },
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ALLOW_DEFAULT_PROJECT_FILES,
-          defaultProject: 'tsconfig.json',
-        },
-        tsconfigRootDir: config.tsconfigRootDir,
+        ...(config.strict && {
+          projectService: {
+            allowDefaultProject: ALLOW_DEFAULT_PROJECT_FILES,
+            defaultProject: 'tsconfig.json',
+          },
+          tsconfigRootDir: config.tsconfigRootDir,
+        }),
         warnOnUnsupportedTypeScriptVersion: false,
         ...(config.nestSupport && {
           emitDecoratorMetadata: true,

@@ -4,10 +4,10 @@ Code service level repo for sharing common sources through several FF projects.
 
 ## Usage
 
-Update ESlint to version 9:
+Update ESlint to version 10:
 
 ```bash
-npm install eslint@^9
+npm install eslint@^10
 ```
 
 Remove these packages from your project:
@@ -56,6 +56,7 @@ import flexiFin from '@flexifin/eslint-config';
 
 export default flexiFin({
   tsconfigRootDir: import.meta.dirname,
+  strict: true, // optional (enables type-aware lint: recommendedTypeChecked + stylisticTypeChecked)
   reactSupport: true, // optional (React projects)
   nestSupport: true, // optional (NestJS projects)
   muiSupport: true, // optional (MUI projects, blocks barrel imports for tree-shaking)
@@ -103,31 +104,6 @@ import flexiFin from '@flexifin/eslint-config/prettier';
 
 export default flexiFin();
 ```
-
-## Performance tips
-
-The preset bundles ~22 plugins with type-aware rules from `typescript-eslint`'s `recommendedTypeChecked` + `stylisticTypeChecked`. A cold run on a typical NestJS/Next app touches every file through the TypeScript checker, so use these defaults to keep things fast:
-
-```jsonc
-// package.json
-{
-  "scripts": {
-    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint",
-    "lint:fix": "eslint . --cache --cache-location node_modules/.cache/eslint --fix",
-  },
-}
-```
-
-`--cache` skips files whose hash and config haven't changed; the second run is typically 2–3× faster than the first.
-
-For IDE / pre-commit feedback, run `eslint_d` (daemon mode) — it keeps the parser and TS checker warm between invocations:
-
-```sh
-pnpm dlx eslint_d start
-# point your editor at `eslint_d` instead of `eslint`
-```
-
-For pre-commit hooks, lint only changed files via `lint-staged` — full-repo lint should be reserved for CI.
 
 ## Silencing peer-dependency warnings
 
