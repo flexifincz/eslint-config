@@ -44,7 +44,7 @@ const DEFAULT_PLUGINS = {
   jest: false,
   js: true,
   jsxA11y: true,
-  nestjsTyped: true,
+  nestjsTyped: false,
   next: true,
   node: true,
   perfectionist: true,
@@ -61,6 +61,20 @@ const DEFAULT_PLUGINS = {
 } as const satisfies Record<string, boolean>;
 
 export type PluginsConfig = { [K in keyof typeof DEFAULT_PLUGINS]?: boolean };
+
+const NEXT_PRESET_PLUGINS: PluginsConfig = {};
+
+const NEST_PRESET_PLUGINS: PluginsConfig = {
+  eslintReact: false,
+  i18next: false,
+  jsxA11y: false,
+  nestjsTyped: true,
+  next: false,
+  playwright: false,
+  reactHooks: false,
+  storybook: false,
+  tanstackQuery: false,
+};
 
 export type TypedFlatConfig = Omit<Linter.Config, 'rules'> & {
   rules?: RuleOptions;
@@ -107,6 +121,7 @@ const JSX_FILES = ['**/*.{jsx,tsx}'];
 const STORY_FILES = ['**/*.stories.{ts,tsx,js,jsx}'];
 const TEST_FILES = ['**/*.{test,spec}.{ts,tsx,js,jsx}'];
 const PLAYWRIGHT_TEST_FILES = ['**/e2e/**', '**/*.e2e.{js,jsx,ts,tsx}'];
+const SERVICE_WORKER_FILES = ['**/{serviceworker,service-worker,sw}.{js,ts,mjs,mts}'];
 
 const STYLISTIC_RULES: RuleOptions = {
   '@stylistic/padding-line-between-statements': [
@@ -148,6 +163,7 @@ const JS_NATIVE_RULES = {
 const FILENAME_CASE_IGNORE = ['MTP', 'IL', 'SME', 'GTM', 'SMS'];
 
 const UNICORN_RULES: RuleOptions = {
+  'unicorn/no-array-reduce': ['error', { allowSimpleOperations: true }],
   'unicorn/no-null': 'off',
   'unicorn/no-process-exit': 'off',
   'unicorn/prefer-ternary': ['error', 'only-single-line'],
@@ -182,6 +198,15 @@ const IMPORT_RULES: RuleOptions = {
 const NODE_RULES: RuleOptions = {
   'n/no-missing-import': 'off',
 };
+
+const NODE_BUILTINS_BROWSER_IGNORE = [
+  'EventSource',
+  'Navigator',
+  'Storage',
+  'localStorage',
+  'navigator',
+  'sessionStorage',
+];
 
 const SONARJS_OVERRIDES: RuleOptions = {
   'sonarjs/deprecation': 'off',
@@ -224,6 +249,25 @@ const LINTER_OPTIONS: Linter.Config = {
   },
 };
 
+const CJS_LANGUAGE_OPTIONS: Linter.Config = {
+  files: ['**/*.cjs'],
+  languageOptions: {
+    globals: {
+      __dirname: 'readonly',
+      __filename: 'readonly',
+      exports: 'writable',
+      module: 'readonly',
+      require: 'readonly',
+    },
+    sourceType: 'commonjs',
+  },
+};
+
+const SERVICE_WORKER_CONFIG: Linter.Config = {
+  files: SERVICE_WORKER_FILES,
+  languageOptions: { globals: globals.serviceworker },
+};
+
 const PERFECTIONIST_CONFIGS: Linter.Config[] = [
   eslintPluginPerfectionist.configs['recommended-natural'],
   { rules: { 'perfectionist/sort-arrays': 'off' } },
@@ -252,6 +296,10 @@ const JEST_CONFIG: Linter.Config = {
 const NEXT_CONFIG: Linter.Config = {
   files: ['**/*.{js,jsx,ts,tsx}'],
   ...eslintPluginNext.configs['core-web-vitals'],
+  rules: {
+    ...eslintPluginNext.configs['core-web-vitals'].rules,
+    '@next/next/no-html-link-for-pages': 'off',
+  },
 };
 
 const TANSTACK_QUERY_CONFIGS = (
@@ -304,16 +352,30 @@ export default function flexifinPreset(
   config: MainConfig = {},
   ...userConfigs: TypedFlatConfig[]
 ): Linter.Config[] {
-  const enabledPlugins: Required<PluginsConfig> = { ...DEFAULT_PLUGINS, ...config.plugins };
+  if (config.nextSupport && config.nestSupport) {
+    throw new Error(
+      '@flexifin/eslint-config: `nextSupport` and `nestSupport` are mutually exclusive — pick one.'
+    );
+  }
+
+  const enabledPlugins: Required<PluginsConfig> = {
+    ...DEFAULT_PLUGINS,
+    ...(config.nextSupport ? NEXT_PRESET_PLUGINS : {}),
+    ...(config.nestSupport ? NEST_PRESET_PLUGINS : {}),
+    ...config.plugins,
+  };
 
   return [
     globalIgnores([...IGNORED_DIRECTORIES, ...(config.ignores ?? [])]),
     LINTER_OPTIONS,
     buildLanguageOptions(config),
+    SERVICE_WORKER_CONFIG,
 
     ...buildBaseConfigs(config, enabledPlugins),
     ...buildToolingConfigs(enabledPlugins),
-    ...buildBackendConfigs(config, enabledPlugins),
+    ...buildBackendConfigs(enabledPlugins),
+
+    CJS_LANGUAGE_OPTIONS,
 
     { rules: buildUniversalRules(enabledPlugins) },
     { files: TS_FILES, rules: buildTypeScriptRules(config) },
@@ -324,7 +386,7 @@ export default function flexifinPreset(
     buildDeclarationFilesOverride(enabledPlugins),
     ...buildTestConfigs(enabledPlugins),
     ...buildFilenameCaseConfigs(config, enabledPlugins),
-    ...(config.nextSupport ? buildFrontendConfigs(enabledPlugins) : []),
+    ...buildReactStackConfigs(enabledPlugins),
     ...(userConfigs as Linter.Config[]),
 
     // eslint-config-prettier must run last — disables formatting rules that conflict with Prettier
@@ -332,17 +394,21 @@ export default function flexifinPreset(
   ] as Linter.Config[];
 }
 
-function buildBackendConfigs(
-  config: MainConfig,
-  enabledPlugins: Required<PluginsConfig>
-): Linter.Config[] {
+function buildBackendConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
   const configs: Linter.Config[] = [];
 
   if (enabledPlugins.node) {
-    configs.push(eslintPluginNode.configs['flat/recommended']);
+    configs.push(eslintPluginNode.configs['flat/recommended'], {
+      rules: {
+        'n/no-unsupported-features/node-builtins': [
+          'error',
+          { ignores: NODE_BUILTINS_BROWSER_IGNORE },
+        ],
+      },
+    });
   }
 
-  if (config.nestSupport && enabledPlugins.nestjsTyped) {
+  if (enabledPlugins.nestjsTyped) {
     configs.push(...NESTJS_CONFIGS);
   }
 
@@ -398,27 +464,6 @@ function buildFilenameCaseConfigs(
     ];
   }
 
-  if (config.nextSupport) {
-    return [
-      {
-        files: JSX_FILES,
-        rules: {
-          'unicorn/filename-case': ['error', { case: 'pascalCase', ignore: FILENAME_CASE_IGNORE }],
-        },
-      },
-      {
-        files: [...TS_FILES, ...JS_FILES],
-        ignores: JSX_FILES,
-        rules: {
-          'unicorn/filename-case': [
-            'error',
-            { cases: { camelCase: true, kebabCase: true }, ignore: FILENAME_CASE_IGNORE },
-          ],
-        },
-      },
-    ];
-  }
-
   return [
     {
       files: [...TS_FILES, ...JS_FILES],
@@ -435,7 +480,45 @@ function buildFilenameCaseConfigs(
   ];
 }
 
-function buildFrontendConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
+function buildLanguageOptions(config: MainConfig): Linter.Config {
+  return {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+        ...globals.es2026,
+      },
+      parserOptions: {
+        ...(config.strict && {
+          projectService: {
+            allowDefaultProject: ALLOW_DEFAULT_PROJECT_FILES,
+            defaultProject: 'tsconfig.json',
+          },
+          tsconfigRootDir: config.tsconfigRootDir,
+        }),
+        warnOnUnsupportedTypeScriptVersion: false,
+        ...(config.nestSupport && {
+          emitDecoratorMetadata: true,
+          experimentalDecorators: true,
+        }),
+      },
+    },
+  };
+}
+
+function buildReactStackConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
+  const hasAnyReactPlugin =
+    enabledPlugins.eslintReact ||
+    enabledPlugins.reactHooks ||
+    enabledPlugins.jsxA11y ||
+    enabledPlugins.next ||
+    enabledPlugins.i18next ||
+    enabledPlugins.tanstackQuery;
+
+  if (!hasAnyReactPlugin) {
+    return [];
+  }
+
   const configs: Linter.Config[] = [REACT_BASE_CONFIG];
 
   if (enabledPlugins.eslintReact) {
@@ -470,32 +553,6 @@ function buildFrontendConfigs(enabledPlugins: Required<PluginsConfig>): Linter.C
   }
 
   return configs;
-}
-
-function buildLanguageOptions(config: MainConfig): Linter.Config {
-  return {
-    languageOptions: {
-      globals: {
-        ...globals.node,
-        ...globals.es2026,
-        ...(config.nextSupport ? globals.browser : {}),
-      },
-      parserOptions: {
-        ...(config.strict && {
-          projectService: {
-            allowDefaultProject: ALLOW_DEFAULT_PROJECT_FILES,
-            defaultProject: 'tsconfig.json',
-          },
-          tsconfigRootDir: config.tsconfigRootDir,
-        }),
-        warnOnUnsupportedTypeScriptVersion: false,
-        ...(config.nestSupport && {
-          emitDecoratorMetadata: true,
-          experimentalDecorators: true,
-        }),
-      },
-    },
-  };
 }
 
 function buildTestConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
