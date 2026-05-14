@@ -57,10 +57,8 @@ import flexiFin from '@flexifin/eslint-config';
 export default flexiFin({
   tsconfigRootDir: import.meta.dirname,
   strict: true, // optional (enables type-aware lint: recommendedTypeChecked + stylisticTypeChecked)
-  reactSupport: true, // optional (React projects)
-  nestSupport: true, // optional (NestJS projects)
-  muiSupport: true, // optional (MUI projects, blocks barrel imports for tree-shaking)
-  swaggerSupport: false, // optional (NestJS without Swagger — disables Swagger-specific rules)
+  nestSupport: true, // backend (NestJS, Swagger, Node plugin)
+  nextSupport: true, // frontend (Next.js, React, MUI, Storybook, Playwright, i18next, TanStack Query, a11y)
   plugins: {
     // Every plugin defaults to true EXCEPT `jest` (off — Vitest is the default test runner).
     // Set false to opt out individually. Jest projects opt in:
@@ -82,7 +80,7 @@ import flexiFin from '@flexifin/eslint-config';
 
 export default flexiFin(
   {
-    reactSupport: true,
+    nextSupport: true,
     ignores: ['src/_api'],
     rules: {
       'unicorn/no-array-reduce': 'off',

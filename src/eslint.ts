@@ -29,46 +29,15 @@ import type { RuleOptions } from './types.gen';
 
 export type MainConfig = {
   ignores?: string[];
-  muiSupport?: boolean;
   nestSupport?: boolean;
+  nextSupport?: boolean;
   plugins?: PluginsConfig;
-  reactSupport?: boolean;
   rules?: RuleOptions;
   strict?: boolean;
-  swaggerSupport?: boolean;
   tsconfigRootDir?: string;
 };
 
-export type PluginsConfig = {
-  casePolice?: boolean;
-  eslintReact?: boolean;
-  i18next?: boolean;
-  importX?: boolean;
-  jest?: boolean;
-  js?: boolean;
-  jsxA11y?: boolean;
-  nestjsTyped?: boolean;
-  next?: boolean;
-  node?: boolean;
-  perfectionist?: boolean;
-  playwright?: boolean;
-  prettier?: boolean;
-  reactHooks?: boolean;
-  regexp?: boolean;
-  sonarjs?: boolean;
-  storybook?: boolean;
-  stylistic?: boolean;
-  tanstackQuery?: boolean;
-  typescriptEslint?: boolean;
-  unicorn?: boolean;
-  vitest?: boolean;
-};
-
-export type TypedFlatConfig = Omit<Linter.Config, 'rules'> & {
-  rules?: RuleOptions;
-};
-
-const DEFAULT_PLUGINS: Required<PluginsConfig> = {
+const DEFAULT_PLUGINS = {
   casePolice: true,
   eslintReact: true,
   i18next: true,
@@ -91,6 +60,12 @@ const DEFAULT_PLUGINS: Required<PluginsConfig> = {
   typescriptEslint: true,
   unicorn: true,
   vitest: true,
+} as const satisfies Record<string, boolean>;
+
+export type PluginsConfig = { [K in keyof typeof DEFAULT_PLUGINS]?: boolean };
+
+export type TypedFlatConfig = Omit<Linter.Config, 'rules'> & {
+  rules?: RuleOptions;
 };
 
 const IGNORED_DIRECTORIES = [
@@ -131,7 +106,7 @@ const ALLOW_DEFAULT_PROJECT_FILES = ['*.js', '*.mjs', '*.cjs', '*.config.js', '*
 const TS_FILES = ['**/*.{ts,tsx,mts,cts}'];
 const JS_FILES = ['**/*.{js,mjs,cjs,jsx}'];
 const JSX_FILES = ['**/*.{jsx,tsx}'];
-const STORY_FILES = ['**/*.stories.{ts,tsx,js,jsx,mdx}'];
+const STORY_FILES = ['**/*.stories.{ts,tsx,js,jsx}'];
 const TEST_FILES = ['**/*.{test,spec}.{ts,tsx,js,jsx}'];
 const PLAYWRIGHT_TEST_FILES = ['**/e2e/**', '**/*.e2e.{js,jsx,ts,tsx}'];
 
@@ -157,7 +132,7 @@ const TYPESCRIPT_RULES: RuleOptions = {
       prefer: 'type-imports',
     },
   ],
-  '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
+  '@typescript-eslint/no-explicit-any': 'error',
   '@typescript-eslint/no-unused-vars': ['error', UNUSED_VARS_OPTIONS],
 };
 
@@ -165,24 +140,16 @@ const NATIVE_RULES: RuleOptions = {
   // @ts-expect-error curly options are not modeled in the generated RuleOptions
   curly: ['error', 'all'],
   eqeqeq: ['error', 'always'],
+  'no-console': ['error', { allow: ['warn', 'error'] }],
 };
 
 const JS_NATIVE_RULES = {
   'no-unused-vars': ['error', UNUSED_VARS_OPTIONS],
 } as unknown as RuleOptions;
 
+const FILENAME_CASE_IGNORE = ['MTP', 'IL', 'SME', 'GTM', 'SMS'];
+
 const UNICORN_RULES: RuleOptions = {
-  'unicorn/filename-case': [
-    'error',
-    {
-      cases: {
-        camelCase: true,
-        kebabCase: true,
-        pascalCase: true,
-      },
-      ignore: ['MTP', 'IL', 'SME', 'GTM', 'SMS'],
-    },
-  ],
   'unicorn/no-null': 'off',
   'unicorn/no-process-exit': 'off',
   'unicorn/prefer-ternary': ['error', 'only-single-line'],
@@ -304,7 +271,7 @@ const I18N_CONFIG: Linter.Config = {
   ignores: ['**/*.{test,spec,stories}.{js,jsx,ts,tsx}', '**/*.e2e.{js,jsx,ts,tsx}', '**/e2e/**'],
   ...eslintPluginI18next.configs['flat/recommended'],
   rules: {
-    'i18next/no-literal-string': 'warn',
+    'i18next/no-literal-string': 'error',
   },
 };
 
@@ -385,7 +352,8 @@ export default function flexifinPreset(
 
     ...(declarationOverride ? [declarationOverride] : []),
     ...buildTestConfigs(enabledPlugins),
-    ...(config.reactSupport ? buildReactConfigs(config, enabledPlugins) : []),
+    ...buildFilenameCaseConfigs(config, enabledPlugins),
+    ...(config.nextSupport ? buildFrontendConfigs(enabledPlugins) : []),
     ...(userConfigs as Linter.Config[]),
 
     // eslint-config-prettier must run last — disables formatting rules that conflict with Prettier
@@ -397,18 +365,14 @@ function buildBackendConfigs(
   config: MainConfig,
   enabledPlugins: Required<PluginsConfig>
 ): Linter.Config[] {
-  if (!config.nestSupport) {
-    return enabledPlugins.node ? [eslintPluginNode.configs['flat/recommended']] : [];
+  const configs: Linter.Config[] = [];
+
+  if (enabledPlugins.node) {
+    configs.push(eslintPluginNode.configs['flat/recommended']);
   }
 
-  if (!enabledPlugins.nestjsTyped) {
-    return [];
-  }
-
-  const configs: Linter.Config[] = [...NESTJS_CONFIGS];
-
-  if (config.swaggerSupport === false) {
-    configs.push(...eslintPluginNestjsTyped.configs.flatNoSwagger);
+  if (config.nestSupport && enabledPlugins.nestjsTyped) {
+    configs.push(...NESTJS_CONFIGS);
   }
 
   return configs;
@@ -448,36 +412,63 @@ function buildBaseConfigs(
   return configs;
 }
 
-function buildLanguageOptions(config: MainConfig): Linter.Config {
-  return {
-    languageOptions: {
-      globals: {
-        ...globals.node,
-        ...globals.es2026,
-        ...(config.reactSupport ? globals.browser : {}),
-      },
-      parserOptions: {
-        ...(config.strict && {
-          projectService: {
-            allowDefaultProject: ALLOW_DEFAULT_PROJECT_FILES,
-            defaultProject: 'tsconfig.json',
-          },
-          tsconfigRootDir: config.tsconfigRootDir,
-        }),
-        warnOnUnsupportedTypeScriptVersion: false,
-        ...(config.nestSupport && {
-          emitDecoratorMetadata: true,
-          experimentalDecorators: true,
-        }),
-      },
-    },
-  };
-}
-
-function buildReactConfigs(
+function buildFilenameCaseConfigs(
   config: MainConfig,
   enabledPlugins: Required<PluginsConfig>
 ): Linter.Config[] {
+  if (!enabledPlugins.unicorn) {
+    return [];
+  }
+
+  if (config.nestSupport) {
+    return [
+      {
+        files: [...TS_FILES, ...JS_FILES],
+        rules: {
+          'unicorn/filename-case': ['error', { case: 'kebabCase', ignore: FILENAME_CASE_IGNORE }],
+        },
+      },
+    ];
+  }
+
+  if (config.nextSupport) {
+    return [
+      {
+        files: JSX_FILES,
+        rules: {
+          'unicorn/filename-case': ['error', { case: 'pascalCase', ignore: FILENAME_CASE_IGNORE }],
+        },
+      },
+      {
+        files: [...TS_FILES, ...JS_FILES],
+        ignores: JSX_FILES,
+        rules: {
+          'unicorn/filename-case': [
+            'error',
+            { cases: { camelCase: true, kebabCase: true }, ignore: FILENAME_CASE_IGNORE },
+          ],
+        },
+      },
+    ];
+  }
+
+  return [
+    {
+      files: [...TS_FILES, ...JS_FILES],
+      rules: {
+        'unicorn/filename-case': [
+          'error',
+          {
+            cases: { camelCase: true, kebabCase: true, pascalCase: true },
+            ignore: FILENAME_CASE_IGNORE,
+          },
+        ],
+      },
+    },
+  ];
+}
+
+function buildFrontendConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
   const configs: Linter.Config[] = [REACT_BASE_CONFIG];
 
   if (enabledPlugins.eslintReact) {
@@ -511,11 +502,35 @@ function buildReactConfigs(
     configs.push(...TANSTACK_QUERY_CONFIGS);
   }
 
-  if (config.muiSupport) {
-    configs.push(MUI_CONFIG);
-  }
+  configs.push(MUI_CONFIG);
 
   return configs;
+}
+
+function buildLanguageOptions(config: MainConfig): Linter.Config {
+  return {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.es2026,
+        ...(config.nextSupport ? globals.browser : {}),
+      },
+      parserOptions: {
+        ...(config.strict && {
+          projectService: {
+            allowDefaultProject: ALLOW_DEFAULT_PROJECT_FILES,
+            defaultProject: 'tsconfig.json',
+          },
+          tsconfigRootDir: config.tsconfigRootDir,
+        }),
+        warnOnUnsupportedTypeScriptVersion: false,
+        ...(config.nestSupport && {
+          emitDecoratorMetadata: true,
+          experimentalDecorators: true,
+        }),
+      },
+    },
+  };
 }
 
 function buildTestConfigs(enabledPlugins: Required<PluginsConfig>): Linter.Config[] {
