@@ -121,6 +121,7 @@ const JSX_FILES = ['**/*.{jsx,tsx}'];
 const STORY_FILES = ['**/*.stories.{ts,tsx,js,jsx}'];
 const TEST_FILES = ['**/*.{test,spec}.{ts,tsx,js,jsx}'];
 const PLAYWRIGHT_TEST_FILES = ['**/e2e/**', '**/*.e2e.{js,jsx,ts,tsx}'];
+const PLAYWRIGHT_FILES = [...PLAYWRIGHT_TEST_FILES, '**/playwright/**'];
 const SERVICE_WORKER_FILES = ['**/{serviceworker,service-worker,sw}.{js,ts,mjs,mts}'];
 
 const STYLISTIC_RULES: RuleOptions = {
@@ -337,6 +338,10 @@ const REACT_HOOKS_CONFIGS: Linter.Config[] = [
   },
   {
     files: ['**/*.stories.{ts,tsx}'],
+    rules: { 'react-hooks/rules-of-hooks': 'off' },
+  },
+  {
+    files: PLAYWRIGHT_FILES,
     rules: { 'react-hooks/rules-of-hooks': 'off' },
   },
 ];
