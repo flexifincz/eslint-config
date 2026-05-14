@@ -228,9 +228,7 @@ const REACT_DUPLICATE_RULES_OFF = {
   '@eslint-react/use-memo': 'off',
 } as unknown as RuleOptions;
 
-function buildDeclarationFilesOverride(
-  enabledPlugins: Required<PluginsConfig>
-): Linter.Config {
+function buildDeclarationFilesOverride(enabledPlugins: Required<PluginsConfig>): Linter.Config {
   const rules: Linter.RulesRecord = {
     '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/no-empty-object-type': 'off',
