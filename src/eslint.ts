@@ -32,7 +32,6 @@ export type MainConfig = {
   nestSupport?: boolean;
   nextSupport?: boolean;
   plugins?: PluginsConfig;
-  rules?: RuleOptions;
   strict?: boolean;
   tsconfigRootDir?: string;
 };
@@ -57,7 +56,6 @@ const DEFAULT_PLUGINS = {
   storybook: true,
   stylistic: true,
   tanstackQuery: true,
-  typescriptEslint: true,
   unicorn: true,
   vitest: true,
 } as const satisfies Record<string, boolean>;
@@ -206,21 +204,15 @@ const REACT_DUPLICATE_RULES_OFF = {
 
 function buildDeclarationFilesOverride(
   enabledPlugins: Required<PluginsConfig>
-): Linter.Config | null {
-  const rules: Linter.RulesRecord = {};
-
-  if (enabledPlugins.typescriptEslint) {
-    rules['@typescript-eslint/consistent-type-definitions'] = 'off';
-    rules['@typescript-eslint/no-empty-object-type'] = 'off';
-    rules['@typescript-eslint/triple-slash-reference'] = 'off';
-  }
+): Linter.Config {
+  const rules: Linter.RulesRecord = {
+    '@typescript-eslint/consistent-type-definitions': 'off',
+    '@typescript-eslint/no-empty-object-type': 'off',
+    '@typescript-eslint/triple-slash-reference': 'off',
+  };
 
   if (enabledPlugins.unicorn) {
     rules['unicorn/require-module-specifiers'] = 'off';
-  }
-
-  if (Object.keys(rules).length === 0) {
-    return null;
   }
 
   return { files: ['**/*.d.ts'], rules };
@@ -308,30 +300,11 @@ const JSX_A11Y_CONFIG: Linter.Config = {
 
 const NESTJS_CONFIGS = eslintPluginNestjsTyped.configs.flatRecommended;
 
-const MUI_CONFIG: Linter.Config = {
-  files: [...TS_FILES, ...JS_FILES],
-  rules: {
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: [
-          {
-            message: 'Use a deep path import for tree-shaking, e.g. `@mui/material/Button`.',
-            regex: '^@mui/[^/]+$',
-          },
-        ],
-      },
-    ],
-  },
-};
-
 export default function flexifinPreset(
   config: MainConfig = {},
   ...userConfigs: TypedFlatConfig[]
 ): Linter.Config[] {
   const enabledPlugins: Required<PluginsConfig> = { ...DEFAULT_PLUGINS, ...config.plugins };
-
-  const declarationOverride = buildDeclarationFilesOverride(enabledPlugins);
 
   return [
     globalIgnores([...IGNORED_DIRECTORIES, ...(config.ignores ?? [])]),
@@ -342,15 +315,13 @@ export default function flexifinPreset(
     ...buildToolingConfigs(enabledPlugins),
     ...buildBackendConfigs(config, enabledPlugins),
 
-    { rules: buildUniversalRules(config, enabledPlugins) },
-    ...(enabledPlugins.typescriptEslint
-      ? [{ files: TS_FILES, rules: buildTypeScriptRules(config) }]
-      : []),
+    { rules: buildUniversalRules(enabledPlugins) },
+    { files: TS_FILES, rules: buildTypeScriptRules(config) },
     ...(enabledPlugins.js
       ? [{ files: JS_FILES, rules: JS_NATIVE_RULES as Linter.RulesRecord }]
       : []),
 
-    ...(declarationOverride ? [declarationOverride] : []),
+    buildDeclarationFilesOverride(enabledPlugins),
     ...buildTestConfigs(enabledPlugins),
     ...buildFilenameCaseConfigs(config, enabledPlugins),
     ...(config.nextSupport ? buildFrontendConfigs(enabledPlugins) : []),
@@ -386,10 +357,6 @@ function buildBaseConfigs(
 
   if (enabledPlugins.js) {
     configs.push(eslint.configs.recommended);
-  }
-
-  if (!enabledPlugins.typescriptEslint) {
-    return configs;
   }
 
   configs.push({ plugins: { '@typescript-eslint': tsEslint.plugin } });
@@ -502,8 +469,6 @@ function buildFrontendConfigs(enabledPlugins: Required<PluginsConfig>): Linter.C
     configs.push(...TANSTACK_QUERY_CONFIGS);
   }
 
-  configs.push(MUI_CONFIG);
-
   return configs;
 }
 
@@ -600,10 +565,7 @@ function buildTypeScriptRules(config: MainConfig): Linter.RulesRecord {
   return rules as Linter.RulesRecord;
 }
 
-function buildUniversalRules(
-  config: MainConfig,
-  enabledPlugins: Required<PluginsConfig>
-): Linter.RulesRecord {
+function buildUniversalRules(enabledPlugins: Required<PluginsConfig>): Linter.RulesRecord {
   const rules: RuleOptions = {
     ...(enabledPlugins.stylistic && STYLISTIC_RULES),
     ...NATIVE_RULES,
@@ -611,7 +573,6 @@ function buildUniversalRules(
     ...(enabledPlugins.importX && IMPORT_RULES),
     ...(enabledPlugins.node && NODE_RULES),
     ...(enabledPlugins.sonarjs && SONARJS_OVERRIDES),
-    ...config.rules,
   };
 
   return rules as Linter.RulesRecord;

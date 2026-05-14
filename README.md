@@ -54,23 +54,32 @@ Rename your project root ESLint config file to `eslint.config.mjs` and modify co
 ```js
 import flexiFin from '@flexifin/eslint-config';
 
-export default flexiFin({
-  tsconfigRootDir: import.meta.dirname,
-  strict: true, // optional (enables type-aware lint: recommendedTypeChecked + stylisticTypeChecked)
-  nestSupport: true, // backend (NestJS, Swagger, Node plugin)
-  nextSupport: true, // frontend (Next.js, React, MUI, Storybook, Playwright, i18next, TanStack Query, a11y)
-  plugins: {
-    // Every plugin defaults to true EXCEPT `jest` (off — Vitest is the default test runner).
-    // Set false to opt out individually. Jest projects opt in:
-    // jest: true, vitest: false,
+export default flexiFin(
+  {
+    tsconfigRootDir: import.meta.dirname,
+    strict: true, // optional (enables type-aware lint: recommendedTypeChecked + stylisticTypeChecked)
+    nestSupport: true, // backend (NestJS, Swagger, Node plugin)
+    nextSupport: true, // frontend (Next.js, React, Storybook, Playwright, i18next, TanStack Query, a11y)
+    plugins: {
+      // Every plugin defaults to true EXCEPT `jest` (off — Vitest is the default test runner).
+      // Set false to opt out individually. Jest projects opt in:
+      // jest: true, vitest: false,
+      //
+      // Note: TypeScript support (parser + @typescript-eslint plugin) is always on — it is
+      // infrastructure, not a toggleable opinion. Override individual TS rules via userConfigs.
+    },
+    ignores: [
+      // ignore paths
+    ],
   },
-  ignores: [
-    // ignore paths
-  ],
-  rules: {
-    // rule overrides
-  },
-});
+  // Rule overrides go in subsequent userConfig arguments — they apply at the end of the
+  // chain and override every preset rule. Add as many as you need; scope by `files` when needed.
+  {
+    rules: {
+      'unicorn/no-array-reduce': 'off',
+    },
+  }
+);
 ```
 
 Real world example:
@@ -82,6 +91,8 @@ export default flexiFin(
   {
     nextSupport: true,
     ignores: ['src/_api'],
+  },
+  {
     rules: {
       'unicorn/no-array-reduce': 'off',
     },
