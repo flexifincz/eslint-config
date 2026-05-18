@@ -154,7 +154,7 @@ const NATIVE_RULES: RuleOptions = {
   // @ts-expect-error curly options are not modeled in the generated RuleOptions
   curly: ['error', 'all'],
   eqeqeq: ['error', 'always'],
-  'no-console': ['error', { allow: ['warn', 'error'] }],
+  'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
 };
 
 const JS_NATIVE_RULES = {
@@ -301,9 +301,17 @@ const NEXT_CONFIG: Linter.Config = {
   },
 };
 
-const TANSTACK_QUERY_CONFIGS = (
-  eslintPluginTanstackQuery.configs['flat/recommended-strict'] as unknown as Linter.Config[]
-).map((config) => ({ ...config, files: [...TS_FILES, ...JSX_FILES] }));
+const TANSTACK_QUERY_CONFIGS: Linter.Config[] = [
+  ...(
+    eslintPluginTanstackQuery.configs['flat/recommended-strict'] as unknown as Linter.Config[]
+  ).map((config) => ({ ...config, files: [...TS_FILES, ...JSX_FILES] })),
+  {
+    files: [...TS_FILES, ...JSX_FILES],
+    rules: {
+      '@tanstack/query/exhaustive-deps': 'off',
+    },
+  },
+];
 
 const I18N_CONFIG: Linter.Config = {
   files: JSX_FILES,
