@@ -1,6 +1,6 @@
 {
   "name": "@flexifin/eslint-config",
-  "version": "2.6.6",
+  "version": "2.7.5",
   "description": "Code service level repo for sharing common sources through several FF projects.",
   "repository": "flexifincz/eslint-config",
   "license": "UNLICENSED",
