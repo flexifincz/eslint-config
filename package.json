@@ -63,7 +63,7 @@
     "eslint-typegen": "^2.3.1",
     "jiti": "^2.7.0",
     "prettier": "^3.8.3",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "unbuild": "^3.6.1"
   },
   "peerDependencies": {
@@ -74,7 +74,7 @@
   "engines": {
     "node": ">=24.0.0"
   },
-  "packageManager": "pnpm@10.29.3",
+  "packageManager": "pnpm@12.3.4",
   "pnpm": {
     "neverBuiltDependencies": [],
     "peerDependencyRules": {
